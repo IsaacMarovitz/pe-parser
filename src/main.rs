@@ -1,6 +1,7 @@
 mod scribe;
 mod coff;
 
+use std::io::{Error, ErrorKind};
 use std::{env, fs};
 use bytemuck::from_bytes;
 use num_traits::FromPrimitive;
@@ -9,7 +10,7 @@ use crate::coff::{COFF_file_header, MachineTypes};
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 
-fn main() {
+fn main() -> Result<(), Error>{
     let args: Vec<String> = env::args().collect();
 
     let file_path = &args[1];
@@ -20,7 +21,7 @@ fn main() {
     let string = binary.read_string(index, 4);
 
     if string != "PE\0\0" {
-        panic!("File is not a valid PE!");
+        return Err(Error::new(ErrorKind::InvalidData, "File is not a valid PE!"));
     }
 
     index += 4;
@@ -29,4 +30,6 @@ fn main() {
     let machine_type = MachineTypes::from_u16(header.machine)
         .expect("Failed to get machine type");
     println!("{:?}", machine_type);
+
+    Ok(())
 }
