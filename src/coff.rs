@@ -3,7 +3,7 @@ use num_derive::FromPrimitive;
 
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct COFF_file_header {
+pub struct coff_file_header {
     pub machine: u16,
     pub number_of_sections: u16,
     pub time_date_stamp: u32,
