@@ -1,5 +1,7 @@
 use bytemuck::{Pod, Zeroable};
 use num_derive::FromPrimitive;    
+use bitflags::bitflags;
+use std::{fmt, str};
 
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
@@ -45,4 +47,45 @@ pub enum MachineTypes {
     SH5 = 0x1a8,
     Thunb = 0x1c2,
     WCEMIPSV2 = 0x169
+}
+
+bitflags! {
+    pub struct Characteristics: u16 {
+        const imageFileRelocsStripped = 0x0001;
+        const imageFileExecutableImage = 0x0002;
+        const imageFileLineNumsStripped = 0x0004;
+        const imageFileLocalSymsStripped = 0x0008;
+        const imageFileAggresiveWsTrim = 0x0010;
+        const imageFileLargeAddressAware = 0x0020;
+        const imageFileReserved1 = 0x0040;
+        const imageFileBytesReservedLo = 0x0080;
+        const imageFile32bitMachine = 0x0100;
+        const imageFileDebugStripped = 0x0200;
+        const imageFileRemovableRunFromSwap = 0x0400;
+        const imageFileNetRunFromSwap = 0x0800;
+        const imageFileSystem = 0x1000;
+        const imageFileDll = 0x2000;
+        const imageFileUpSystemOnly = 0x4000;
+        const imageFileBytesReservedHi = 0x8000;
+    }
+}
+
+impl fmt::Debug for Characteristics {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(&self.0, f)
+    }
+}
+
+impl fmt::Display for Characteristics {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
+    }
+}
+
+impl str::FromStr for Characteristics {
+    type Err = bitflags::parser::ParseError;
+
+    fn from_str(flags: &str) -> Result<Self, Self::Err> {
+        Ok(Self(flags.parse()?))
+    }
 }

@@ -6,7 +6,7 @@ use std::{env, fs};
 use bytemuck::from_bytes;
 use num_traits::FromPrimitive;
 use crate::scribe::Scribe;
-use crate::coff::{coff_file_header, MachineTypes};
+use crate::coff::{coff_file_header, MachineTypes, Characteristics};
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 
@@ -37,7 +37,10 @@ fn main() -> Result<(), Error>{
     let header = from_bytes::<coff_file_header>(&binary[index..index+20]);
     let machine_type = MachineTypes::from_u16(header.machine)
         .expect("Failed to get machine type");
+    let characteristics = Characteristics::from_bits(header.characterisitcs)
+        .expect("Failed to get characterisitcs");
     println!("Machine Type: {:?}", machine_type);
+    println!("Characteristics: {}", characteristics);
 
     Ok(())
 }

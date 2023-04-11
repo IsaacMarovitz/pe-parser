@@ -9,3 +9,4 @@ edition = "2021"
 bytemuck = {version = "1.13.1", features = ["derive"]}
 num-traits = "0.2"
 num-derive = "0.2"
+bitflags = "2.1.0"
