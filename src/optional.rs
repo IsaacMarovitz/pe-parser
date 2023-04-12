@@ -308,7 +308,7 @@ impl fmt::Display for optional_header_64 {
 
         writeln!(f, "Optional Header")?;
         writeln!(f, "---------------")?;
-        writeln!(f, "Magic: PE32")?;
+        writeln!(f, "Magic: PE32+")?;
         writeln!(f, "Linker Version: {}.{}", self.major_linker_version, self.minor_linker_version)?;
         writeln!(f, "Size of Code: {}", self.size_of_code)?;
         writeln!(f, "Size of Initialized Data: {}", self.size_of_initialized_data)?;
