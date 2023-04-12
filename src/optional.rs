@@ -8,28 +8,19 @@ use std::{fmt, str};
 use crate::scribe::Scribe;
 
 pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error> {
-    let mut offset = offset;
-    let magic = binary.read_u16(offset);
-
-    let magic = Magic::from_u16(magic)
+    let magic = Magic::from_u16(binary.read_u16(offset))
         .expect("Failed to get magic!");
-
-    println!("Optional Header");
-    println!("---------------");
 
     match magic {
         Magic::PE32 => {
             let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96+128]);
-            offset += 96 + 128;
             print!("{}\n", optional_header);
         }
         Magic::PE64 => {
             let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112+128]);
-            offset += 112 + 128;
             print!("{}\n", optional_header);
         }
     }
-    println!();
     Ok(())
 }
 
@@ -197,6 +188,8 @@ impl fmt::Display for optional_header_32 {
         let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
             .expect("Failed to get DLL characteristics");
 
+        writeln!(f, "Optional Header")?;
+        writeln!(f, "---------------")?;
         writeln!(f, "Magic: PE32")?;
         writeln!(f, "Major Linker Version: {}", self.major_linker_version)?;
         writeln!(f, "Minor Linker Version: {}", self.minor_linker_version)?;
@@ -315,6 +308,8 @@ impl fmt::Display for optional_header_64 {
         let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
             .expect("Failed to get DLL characteristics");
 
+        writeln!(f, "Optional Header")?;
+        writeln!(f, "---------------")?;
         writeln!(f, "Magic: PE32")?;
         writeln!(f, "Major Linker Version: {}", self.major_linker_version)?;
         writeln!(f, "Minor Linker Version: {}", self.minor_linker_version)?;
