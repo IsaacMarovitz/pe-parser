@@ -195,6 +195,7 @@ pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Erro
     println!("Debug:                   {:#08x} ({})", debug.virtual_address, debug.size);
     println!("Architecture:            {:#08x} ({})", architecture.virtual_address, architecture.size);
     println!("Global Pointer:          {:#08x} ({})", global_ptr.virtual_address, global_ptr.size);
+    println!("TLS Table:               {:#08x} ({})", tls_table.virtual_address, tls_table.size);
     println!("Load Config Table:       {:#08x} ({})", load_config_table.virtual_address, load_config_table.size);
     println!("Bound Import:            {:#08x} ({})", bound_import.virtual_address, bound_import.size);
     println!("Import Address Table:    {:#08x} ({})", import_address_table.virtual_address, import_address_table.size);
