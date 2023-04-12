@@ -9,6 +9,7 @@ use bytemuck::from_bytes;
 use crate::scribe::Scribe;
 use crate::optional::parse_optional_header;
 use crate::coff::coff_file_header;
+use crate::section::parse_section_table;
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 
@@ -47,8 +48,10 @@ fn main() -> Result<(), Error> {
     }
 
     if has_optional_header {
-        parse_optional_header(binary, &mut offset)?;
+        parse_optional_header(binary.as_slice(), &mut offset)?;
     }
+
+    parse_section_table(binary.as_slice(), offset, header.number_of_sections)?;
 
     Ok(())
 }

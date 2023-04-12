@@ -7,7 +7,7 @@ use std::{fmt, str};
 
 use crate::scribe::Scribe;
 
-pub fn parse_optional_header(binary: Vec<u8>, offset: &mut usize) -> Result<(), Error> {
+pub fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<(), Error> {
     let magic = Magic::from_u16(binary.read_u16(*offset))
         .expect("Failed to get magic!");
 

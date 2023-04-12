@@ -1,9 +1,14 @@
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
 use std::{fmt, str};
+use std::io::Error;
 
-pub fn parse_section_table(binary: Vec<u8>, offset: usize, number_of_sections: u16) {
+pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Result<(), Error> {
+    for n in 0..number_of_sections {
+        
+    }
 
+    Ok(())
 }
 
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
