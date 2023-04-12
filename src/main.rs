@@ -1,13 +1,14 @@
 mod scribe;
 mod coff;
 mod optional;
+mod section;
 
 use std::io::{Error, ErrorKind};
 use std::{env, fs};
 use bytemuck::from_bytes;
 use crate::scribe::Scribe;
 use crate::optional::parse_optional_header;
-use crate::coff::{coff_file_header};
+use crate::coff::coff_file_header;
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 
@@ -46,7 +47,7 @@ fn main() -> Result<(), Error> {
     }
 
     if has_optional_header {
-        parse_optional_header(binary, offset)?;
+        parse_optional_header(binary, &mut offset)?;
     }
 
     Ok(())

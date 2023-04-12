@@ -40,7 +40,7 @@ impl fmt::Display for coff_file_header {
         writeln!(f, "Size of Optional Header: {}", self.size_of_optional_header)?;
         writeln!(f, "Characteristics: {}", characteristics)?;
 
-        fmt::Result::Ok(())
+        Ok(())
     }
 }
 

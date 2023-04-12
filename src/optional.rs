@@ -1,23 +1,25 @@
 use bytemuck::{Pod, Zeroable, from_bytes};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use std::io::{Error};
+use std::{io::Error, ops::AddAssign};
 use bitflags::bitflags;
 use std::{fmt, str};
 
 use crate::scribe::Scribe;
 
-pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error> {
-    let magic = Magic::from_u16(binary.read_u16(offset))
+pub fn parse_optional_header(binary: Vec<u8>, offset: &mut usize) -> Result<(), Error> {
+    let magic = Magic::from_u16(binary.read_u16(*offset))
         .expect("Failed to get magic!");
 
     match magic {
         Magic::PE32 => {
-            let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96+128]);
+            let optional_header = from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
+            offset.add_assign(96 + 128);
             print!("{}\n", optional_header);
         }
         Magic::PE64 => {
-            let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112+128]);
+            let optional_header = from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
+            offset.add_assign(112 + 128);
             print!("{}\n", optional_header);
         }
     }
