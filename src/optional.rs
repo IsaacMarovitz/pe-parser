@@ -2,6 +2,8 @@ use bytemuck::{Pod, Zeroable, from_bytes};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 use std::io::{Error, ErrorKind};
+use bitflags::bitflags;
+use std::{fmt, str};
 
 use crate::scribe::Scribe;
 
@@ -19,15 +21,84 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
         Magic::PE32 => {
             let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96]);
             offset += 96;
+
+            let subsystem = Subsystem::from_u16(optional_header.subsystem)
+                .expect("Failed to get subsystem");
+            let dllCharacteristics = DLLCharacteristics::from_bits(optional_header.dll_characteristics)
+                .expect("Failed to get DLL characteristics");
+
             println!("Magic: PE32");
+            println!("Major Linker Version: {}", optional_header.major_linker_version);
+            println!("Minor Linker Version: {}", optional_header.minor_linker_version);
+            println!("Size of Code: {}", optional_header.size_of_code);
+            println!("Size of Initialized Data: {}", optional_header.size_of_initialized_data);
+            println!("Size of Uninitialized Data: {}", optional_header.size_of_uninitialized_data);
+            println!("Address of Entry Point: {}", optional_header.address_of_entry_point);
+            println!("Base of Code: {}", optional_header.base_of_code);
+            println!("Base of Data: {}", optional_header.base_of_data);
+            println!("Image Base: {}", optional_header.image_base);
+            println!("Section Alignment: {}", optional_header.section_alignment);
+            println!("File Alignment: {}", optional_header.file_alignment);
+            println!("Major Operating System Version: {}", optional_header.major_operating_system_version);
+            println!("Minor Operating System Version: {}", optional_header.minor_operating_system_version);
+            println!("Major Image Version: {}", optional_header.major_image_version);
+            println!("Minor Image Version: {}", optional_header.minor_image_version);
+            println!("Major Subsystem Version: {}", optional_header.major_subsystem_version);
+            println!("Minor Subsystem Version: {}", optional_header.minor_subsystem_version);
+            println!("Win32 Version Value: {}", optional_header.win32_version_value);
+            println!("Size of Image: {}", optional_header.size_of_image);
+            println!("Size of Headers: {}", optional_header.size_of_headers);
+            println!("CheckSum: {}", optional_header.check_sum);
+            println!("Subsystem: {:?}", subsystem);
+            println!("DLL Characteristics: {}", dllCharacteristics);
+            println!("Size of Stack Reserve: {}", optional_header.size_of_stack_reserve);
+            println!("Size of Stack Commit: {}", optional_header.size_of_stack_commit);
+            println!("Size of Heap Reserve: {}", optional_header.size_of_heap_reserve);
+            println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
+            println!("Loader Flags: {}", optional_header.loader_flags);
+            println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
         }
         Magic::PE64 => {
             let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112]);
             offset += 112;
+
+            let subsystem = Subsystem::from_u16(optional_header.subsystem)
+                .expect("Failed to get subsystem");
+            let dllCharacteristics = DLLCharacteristics::from_bits(optional_header.dll_characteristics)
+                .expect("Failed to get DLL characteristics");
+
             println!("Magic: PE32+");
+            println!("Major Linker Version: {}", optional_header.major_linker_version);
+            println!("Minor Linker Version: {}", optional_header.minor_linker_version);
+            println!("Size of Code: {}", optional_header.size_of_code);
+            println!("Size of Initialized Data: {}", optional_header.size_of_initialized_data);
+            println!("Size of Uninitialized Data: {}", optional_header.size_of_uninitialized_data);
+            println!("Address of Entry Point: {}", optional_header.address_of_entry_point);
+            println!("Base of Code: {}", optional_header.base_of_code);
+            println!("Image Base: {}", optional_header.image_base);
+            println!("Section Alignment: {}", optional_header.section_alignment);
+            println!("File Alignment: {}", optional_header.file_alignment);
+            println!("Major Operating System Version: {}", optional_header.major_operating_system_version);
+            println!("Minor Operating System Version: {}", optional_header.minor_operating_system_version);
+            println!("Major Image Version: {}", optional_header.major_image_version);
+            println!("Minor Image Version: {}", optional_header.minor_image_version);
+            println!("Major Subsystem Version: {}", optional_header.major_subsystem_version);
+            println!("Minor Subsystem Version: {}", optional_header.minor_subsystem_version);
+            println!("Win32 Version Value: {}", optional_header.win32_version_value);
+            println!("Size of Image: {}", optional_header.size_of_image);
+            println!("Size of Headers: {}", optional_header.size_of_headers);
+            println!("CheckSum: {}", optional_header.check_sum);
+            println!("Subsystem: {:?}", subsystem);
+            println!("DLL Characteristics: {}", dllCharacteristics);
+            println!("Size of Stack Reserve: {}", optional_header.size_of_stack_reserve);
+            println!("Size of Stack Commit: {}", optional_header.size_of_stack_commit);
+            println!("Size of Heap Reserve: {}", optional_header.size_of_heap_reserve);
+            println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
+            println!("Loader Flags: {}", optional_header.loader_flags);
+            println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
         }
     }
-
+    println!();
     Ok(())
 }
 
@@ -186,4 +257,95 @@ pub struct optional_header_64 {
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32
+}
+
+/// The following values defined for the Subsystem field of the optional header determine which Windows subsystem (if any) is required to run the image.
+#[derive(FromPrimitive, Debug)]
+#[repr(u16)]
+pub enum Subsystem {
+    /// An unknown subsystem
+    Unkown = 0,
+    /// Device drivers and native Windows processes
+    Native = 1,
+    /// The Windows graphical user interface (GUI) subsystem
+    WindowsGUI = 2,
+    /// The Windows character subsystem
+    WindowsCUI = 3,
+    /// The OS/2 character subsystem
+    OS2CUI = 5,
+    /// The Posix character subsystem
+    PosixCUI = 7,
+    /// Native Win9x driver
+    NativeWindows = 8,
+    /// Windows CE
+    WindowsCEGUI = 9,
+    /// An Extensible Firmware Interface (EFI) application
+    EFIApplication = 10,
+    /// An EFI driver with boot services
+    EFIBootServiceDriver = 11,
+    /// An EFI driver with run-time services
+    EFIRuntimeDriver = 12,
+    /// An EFI ROM image
+    EFIROM = 13,
+    /// XBOX
+    XBOX = 14,
+    /// Windows boot application
+    WindowsBootApplication = 16
+}
+
+bitflags! {
+    pub struct DLLCharacteristics: u16 {
+        /// Reserved, must be zero.
+        const reserved1 = 0x0001;
+        /// Reserved, must be zero.
+        const reserved2 = 0x0002;
+        /// Reserved, must be zero.
+        const reserved4 = 0x0004;
+        /// Reserved, must be zero.
+        const reserved8 = 0x0008;
+        /// Image can handle a high entropy 64-bit virtual address space.
+        const highEntropyVA = 0x0020;
+        /// DLL can be relocated at load time.
+        const dynamicBase = 0x0040;
+        /// Code Integrity checks are enforced.
+        const forceIntegrity = 0x0080;
+        /// Image is NX compatible.
+        const nxCompat = 0x0100;
+        /// Isolation aware, but do not isolate the image.
+        const noIsolation = 0x0200;
+        /// Does not use structured exception (SE) handling. 
+        /// No SE handler may be called in this image.
+        const noSEH = 0x0400;
+        /// Do not bind the image.
+        const noBind = 0x0800;
+        /// Image must execute in an AppContainer.
+        const appContainer = 0x1000;
+        /// A WDM driver.
+        const wdmDriver = 0x2000;
+        /// Image supports Control Flow Guard.
+        const guardCF = 0x4000;
+        /// Terminal Server aware.
+        const terminalServerAware = 0x8000;
+    }
+}
+
+// Allow DLL Characteristics flags to be easily printed
+impl fmt::Debug for DLLCharacteristics {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(&self.0, f)
+    }
+}
+
+impl fmt::Display for DLLCharacteristics {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
+    }
+}
+
+impl str::FromStr for DLLCharacteristics {
+    type Err = bitflags::parser::ParseError;
+
+    fn from_str(flags: &str) -> Result<Self, Self::Err> {
+        Ok(Self(flags.parse()?))
+    }
 }
