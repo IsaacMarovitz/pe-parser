@@ -119,34 +119,68 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
 pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Error> {
     let mut offset = offset;
 
+    // The export table (.edata) address and size. (Image Only)
     let export_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The import table (.idata) address and size.
     let import_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The resource table (.rsrc) address and size.
     let resource_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The exception table (.pdata) address and size.
     let exception_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+    
+    // The attribute certificate table address and size. (Image Only)
     let certificate_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The base relocation table (.reloc) address and size. (Image Only)
     let base_relocation_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The debug data (.debug) starting address and size.
     let debug = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // Reserved, must be 0.
     let architecture = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The RVA of the value to be stored in the global pointer register.
+    // The size member of this structure must be set to zero.
     let global_ptr = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The thread local storage (TLS) table (.tls) address and size.
+    let tls_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+
+    // The load configuration table address and size. (Image Only)
     let load_config_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The bound import table address and size.
     let bound_import = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The import address table address and size.
     let import_address_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The delay import descriptor address and size. (Image Only)
     let delay_import_descriptor = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // The CLR runtime header (.cormeta) address and size. (Object Only)
     let clr_runtime_header = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
+
+    // Reserved, must be zero.
     let reserved = from_bytes::<data_directory>(&binary[offset..offset+8]);
     offset += 8;
 
