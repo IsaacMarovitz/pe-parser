@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
     let binary = fs::read(file_path)
         .expect("Failed to read file");
 
-    let mut offset = binary[IMAGE_DOS_PE_SIGNATURE_OFFSET] as usize;
+    let mut offset = binary.read_u16(IMAGE_DOS_PE_SIGNATURE_OFFSET) as usize;
     let string = binary.read_string(offset, 4);
 
     if string != "PE\0\0" {
