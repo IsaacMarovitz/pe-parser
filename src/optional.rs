@@ -19,110 +19,17 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
 
     match magic {
         Magic::PE32 => {
-            let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96]);
-            offset += 96;
+            let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96+128]);
+            offset += 96 + 128;
             print!("{}\n", optional_header);
-
-            parse_data_directories(binary, offset)?;
         }
         Magic::PE64 => {
-            let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112]);
-            offset += 112;
+            let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112+128]);
+            offset += 112 + 128;
             print!("{}\n", optional_header);
-
-            parse_data_directories(binary, offset)?;
         }
     }
     println!();
-    Ok(())
-}
-
-pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Error> {
-    let mut offset = offset;
-
-    // The export table (.edata) address and size. (Image Only)
-    let export_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The import table (.idata) address and size.
-    let import_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The resource table (.rsrc) address and size.
-    let resource_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The exception table (.pdata) address and size.
-    let exception_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-    
-    // The attribute certificate table address and size. (Image Only)
-    let certificate_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The base relocation table (.reloc) address and size. (Image Only)
-    let base_relocation_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The debug data (.debug) starting address and size.
-    let debug = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // Reserved, must be 0.
-    let architecture = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The RVA of the value to be stored in the global pointer register.
-    // The size member of this structure must be set to zero.
-    let global_ptr = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The thread local storage (TLS) table (.tls) address and size.
-    let tls_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The load configuration table address and size. (Image Only)
-    let load_config_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The bound import table address and size.
-    let bound_import = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The import address table address and size.
-    let import_address_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The delay import descriptor address and size. (Image Only)
-    let delay_import_descriptor = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // The CLR runtime header (.cormeta) address and size. (Object Only)
-    let clr_runtime_header = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
-
-    // Reserved, must be zero.
-    let reserved = from_bytes::<data_directory>(&binary[offset..offset+8]);
-
-    println!("Data Directories");
-    println!("----------------");
-    println!("Export Table:            {:#08x} ({})", export_table.virtual_address, export_table.size);
-    println!("Import Table:            {:#08x} ({})", import_table.virtual_address, import_table.size);
-    println!("Resource Table:          {:#08x} ({})", resource_table.virtual_address, resource_table.size);
-    println!("Exception Table:         {:#08x} ({})", exception_table.virtual_address, exception_table.size);
-    println!("Certificiate Table:      {:#08x} ({})", certificate_table.virtual_address, certificate_table.size);
-    println!("Base Relocation Table:   {:#08x} ({})", base_relocation_table.virtual_address, base_relocation_table.size);
-    println!("Debug:                   {:#08x} ({})", debug.virtual_address, debug.size);
-    println!("Architecture:            {:#08x} ({})", architecture.virtual_address, architecture.size);
-    println!("Global Pointer:          {:#08x} ({})", global_ptr.virtual_address, global_ptr.size);
-    println!("TLS Table:               {:#08x} ({})", tls_table.virtual_address, tls_table.size);
-    println!("Load Config Table:       {:#08x} ({})", load_config_table.virtual_address, load_config_table.size);
-    println!("Bound Import:            {:#08x} ({})", bound_import.virtual_address, bound_import.size);
-    println!("Import Address Table:    {:#08x} ({})", import_address_table.virtual_address, import_address_table.size);
-    println!("Delay Import Descriptor: {:#08x} ({})", delay_import_descriptor.virtual_address, delay_import_descriptor.size);
-    println!("CLR Runtime Header:      {:#08x} ({})", clr_runtime_header.virtual_address, clr_runtime_header.size);
-    println!("Reserved:                {:#08x} ({})", reserved.virtual_address, reserved.size);
-
     Ok(())
 }
 
@@ -131,6 +38,69 @@ pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Erro
 pub enum Magic {
     PE32 = 0x10b,
     PE64 = 0x20b
+}
+
+#[derive(Copy, Clone, Pod, Zeroable, Default)]
+#[repr(C)]
+pub struct data_directories {
+    /// The export table (.edata) address and size. (Image Only)
+    pub export_table: data_directory,
+    /// The import table (.idata) address and size.
+    pub import_table: data_directory,
+    /// The resource table (.rsrc) address and size.
+    pub resource_table: data_directory,
+    /// The exception table (.pdata) address and size.
+    pub exception_table: data_directory,
+    /// The attribute certificate table address and size. (Image Only)
+    pub certificate_table: data_directory,
+    /// The base relocation table (.reloc) address and size. (Image Only)
+    pub base_relocation_table: data_directory,
+    /// The debug data (.debug) starting address and size.
+    pub debug: data_directory,
+    /// Reserved, must be 0.
+    pub architecture: data_directory,
+    /// The RVA of the value to be stored in the global pointer register.
+    /// The size member of this structure must be set to zero.
+    pub global_ptr: data_directory,
+    /// The thread local storage (TLS) table (.tls) address and size.
+    pub tls_table: data_directory,
+    /// The load configuration table address and size. (Image Only)
+    pub load_config_table: data_directory,
+    /// The bound import table address and size.
+    pub bound_import: data_directory,
+    /// The import address table address and size.
+    pub import_address_table: data_directory,
+    /// The delay import descriptor address and size. (Image Only)
+    pub delay_import_descriptor: data_directory,
+    /// The CLR runtime header (.cormeta) address and size. (Object Only
+    pub clr_runtime_header: data_directory,
+    /// Reserved, must be zero.
+    pub reserved: data_directory
+}
+
+impl fmt::Display for data_directories {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Data Directories")?;
+        writeln!(f, "----------------")?;
+        writeln!(f, "Export Table:            {:#08x} ({})", self.export_table.virtual_address, self.export_table.size)?;
+        writeln!(f, "Import Table:            {:#08x} ({})", self.import_table.virtual_address, self.import_table.size)?;
+        writeln!(f, "Resource Table:          {:#08x} ({})", self.resource_table.virtual_address, self.resource_table.size)?;
+        writeln!(f, "Exception Table:         {:#08x} ({})", self.exception_table.virtual_address, self.exception_table.size)?;
+        writeln!(f, "Certificiate Table:      {:#08x} ({})", self.certificate_table.virtual_address, self.certificate_table.size)?;
+        writeln!(f, "Base Relocation Table:   {:#08x} ({})", self.base_relocation_table.virtual_address, self.base_relocation_table.size)?;
+        writeln!(f, "Debug:                   {:#08x} ({})", self.debug.virtual_address, self.debug.size)?;
+        writeln!(f, "Architecture:            {:#08x} ({})", self.architecture.virtual_address, self.architecture.size)?;
+        writeln!(f, "Global Pointer:          {:#08x} ({})", self.global_ptr.virtual_address, self.global_ptr.size)?;
+        writeln!(f, "TLS Table:               {:#08x} ({})", self.tls_table.virtual_address, self.tls_table.size)?;
+        writeln!(f, "Load Config Table:       {:#08x} ({})", self.load_config_table.virtual_address, self.load_config_table.size)?;
+        writeln!(f, "Bound Import:            {:#08x} ({})", self.bound_import.virtual_address, self.bound_import.size)?;
+        writeln!(f, "Import Address Table:    {:#08x} ({})", self.import_address_table.virtual_address, self.import_address_table.size)?;
+        writeln!(f, "Delay Import Descriptor: {:#08x} ({})", self.delay_import_descriptor.virtual_address, self.delay_import_descriptor.size)?;
+        writeln!(f, "CLR Runtime Header:      {:#08x} ({})", self.clr_runtime_header.virtual_address, self.clr_runtime_header.size)?;
+        writeln!(f, "Reserved:                {:#08x} ({})", self.reserved.virtual_address, self.reserved.size)?;
+
+        Ok(())
+    }
 }
 
 /// Each data directory gives the address and size of a table or string that Windows uses.
@@ -216,7 +186,8 @@ pub struct optional_header_32 {
     /// Reserved, must be zero.
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
-    pub number_of_rva_and_sizes: u32
+    pub number_of_rva_and_sizes: u32,
+    pub data_directories: data_directories
 }
 
 impl fmt::Display for optional_header_32 {
@@ -256,6 +227,7 @@ impl fmt::Display for optional_header_32 {
         writeln!(f, "Size of Heap Commit: {}", self.size_of_heap_commit)?;
         writeln!(f, "Loader Flags: {}", self.loader_flags)?;
         writeln!(f, "Number of RVA and Sizes: {}", self.number_of_rva_and_sizes)?;
+        write!(f, "\n{}", self.data_directories)?;
 
         Ok(())
     }
@@ -332,7 +304,8 @@ pub struct optional_header_64 {
     /// Reserved, must be zero.
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
-    pub number_of_rva_and_sizes: u32
+    pub number_of_rva_and_sizes: u32,
+    pub data_directories: data_directories
 }
 
 impl fmt::Display for optional_header_64 {
@@ -371,6 +344,7 @@ impl fmt::Display for optional_header_64 {
         writeln!(f, "Size of Heap Commit: {}", self.size_of_heap_commit)?;
         writeln!(f, "Loader Flags: {}", self.loader_flags)?;
         writeln!(f, "Number of RVA and Sizes: {}", self.number_of_rva_and_sizes)?;
+        write!(f, "\n{}", self.data_directories)?;
 
         Ok(())
     }
