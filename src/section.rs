@@ -1,11 +1,16 @@
+use bytemuck::checked::from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
 use std::{fmt, str};
 use std::io::Error;
 
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Result<(), Error> {
-    for n in 0..number_of_sections {
-        
+    let mut offset = offset;
+
+    for _ in 0..number_of_sections {
+        let section_header = from_bytes::<section_header>(&binary[offset..offset+40]);
+        offset += 40;
+        println!("{}\n", section_header);
     }
 
     Ok(())
