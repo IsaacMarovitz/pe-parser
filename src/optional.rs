@@ -57,6 +57,13 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
             println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
             println!("Loader Flags: {}", optional_header.loader_flags);
             println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
+
+            match parse_data_directories(binary, offset) {
+                Ok(()) => {},
+                Err(err) => {
+                    return Err(err);
+                }
+            }
         }
         Magic::PE64 => {
             let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112]);
@@ -96,9 +103,71 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
             println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
             println!("Loader Flags: {}", optional_header.loader_flags);
             println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
+
+            match parse_data_directories(binary, offset) {
+                Ok(()) => {},
+                Err(err) => {
+                    return Err(err);
+                }
+            }
         }
     }
     println!();
+    Ok(())
+}
+
+pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Error> {
+    let mut offset = offset;
+
+    let export_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let import_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let resource_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let exception_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let certificate_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let base_relocation_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let debug = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let architecture = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let global_ptr = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let load_config_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let bound_import = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let import_address_table = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let delay_import_descriptor = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let clr_runtime_header = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+    let reserved = from_bytes::<data_directory>(&binary[offset..offset+8]);
+    offset += 8;
+
+    println!("\nData Directories");
+    println!("----------------");
+    println!("Export Table:            {:#08x} ({})", export_table.virtual_address, export_table.size);
+    println!("Import Table:            {:#08x} ({})", import_table.virtual_address, import_table.size);
+    println!("Resource Table:          {:#08x} ({})", resource_table.virtual_address, resource_table.size);
+    println!("Exception Table:         {:#08x} ({})", exception_table.virtual_address, exception_table.size);
+    println!("Certificiate Table:      {:#08x} ({})", certificate_table.virtual_address, certificate_table.size);
+    println!("Base Relocation Table:   {:#08x} ({})", base_relocation_table.virtual_address, base_relocation_table.size);
+    println!("Debug:                   {:#08x} ({})", debug.virtual_address, debug.size);
+    println!("Architecture:            {:#08x} ({})", architecture.virtual_address, architecture.size);
+    println!("Global Pointer:          {:#08x} ({})", global_ptr.virtual_address, global_ptr.size);
+    println!("Load Config Table:       {:#08x} ({})", load_config_table.virtual_address, load_config_table.size);
+    println!("Bound Import:            {:#08x} ({})", bound_import.virtual_address, bound_import.size);
+    println!("Import Address Table:    {:#08x} ({})", import_address_table.virtual_address, import_address_table.size);
+    println!("Delay Import Descriptor: {:#08x} ({})", delay_import_descriptor.virtual_address, delay_import_descriptor.size);
+    println!("CLR Runtime Header:      {:#08x} ({})", clr_runtime_header.virtual_address, clr_runtime_header.size);
+    println!("Reserved:                {:#08x} ({})", reserved.virtual_address, reserved.size);
+
     Ok(())
 }
 
@@ -107,6 +176,16 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
 pub enum Magic {
     PE32 = 0x10b,
     PE64 = 0x20b
+}
+
+/// Each data directory gives the address and size of a table or string that Windows uses.
+/// These data directory entries are all loaded into memory so that the system can use them at run time.
+/// A data directory is an 8-byte field that has the following declaration:
+#[derive(Copy, Clone, Pod, Zeroable, Default)]
+#[repr(C)]
+pub struct data_directory {
+    pub virtual_address: u32,
+    pub size: u32
 }
 
 /// PE32 Optional Header (Image Only)
