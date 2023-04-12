@@ -1,5 +1,6 @@
 use bytemuck::{Pod, Zeroable};
-use num_derive::FromPrimitive;    
+use num_derive::FromPrimitive;   
+use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use std::{fmt, str};
 
@@ -23,6 +24,24 @@ pub struct coff_file_header {
     pub size_of_optional_header: u16,
     /// The flags that indicate the attributes of the file.
     pub characterisitcs: u16
+}
+
+impl fmt::Display for coff_file_header {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let machine_type = MachineTypes::from_u16(self.machine)
+            .expect("Failed to get machine type");
+        let characteristics = Characteristics::from_bits(self.characterisitcs)
+            .expect("Failed to get characterisitcs");
+
+        writeln!(f, "COFF Header")?;
+        writeln!(f, "-----------")?;
+        writeln!(f, "Machine Type: {:?}", machine_type)?;
+        writeln!(f, "Number of Sections: {}", self.number_of_sections)?;
+        writeln!(f, "Size of Optional Header: {}", self.size_of_optional_header)?;
+        writeln!(f, "Characteristics: {}", characteristics)?;
+
+        fmt::Result::Ok(())
+    }
 }
 
 /// The Machine field has one of the following values, which specify the CPU type. 

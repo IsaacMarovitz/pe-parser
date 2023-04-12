@@ -1,7 +1,7 @@
 use bytemuck::{Pod, Zeroable, from_bytes};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use std::io::{Error, ErrorKind};
+use std::io::{Error};
 use bitflags::bitflags;
 use std::{fmt, str};
 
@@ -21,95 +21,16 @@ pub fn parse_optional_header(binary: Vec<u8>, offset: usize) -> Result<(), Error
         Magic::PE32 => {
             let optional_header = from_bytes::<optional_header_32>(&binary[offset..offset+96]);
             offset += 96;
+            print!("{}\n", optional_header);
 
-            let subsystem = Subsystem::from_u16(optional_header.subsystem)
-                .expect("Failed to get subsystem");
-            let dllCharacteristics = DLLCharacteristics::from_bits(optional_header.dll_characteristics)
-                .expect("Failed to get DLL characteristics");
-
-            println!("Magic: PE32");
-            println!("Major Linker Version: {}", optional_header.major_linker_version);
-            println!("Minor Linker Version: {}", optional_header.minor_linker_version);
-            println!("Size of Code: {}", optional_header.size_of_code);
-            println!("Size of Initialized Data: {}", optional_header.size_of_initialized_data);
-            println!("Size of Uninitialized Data: {}", optional_header.size_of_uninitialized_data);
-            println!("Address of Entry Point: {}", optional_header.address_of_entry_point);
-            println!("Base of Code: {}", optional_header.base_of_code);
-            println!("Base of Data: {}", optional_header.base_of_data);
-            println!("Image Base: {}", optional_header.image_base);
-            println!("Section Alignment: {}", optional_header.section_alignment);
-            println!("File Alignment: {}", optional_header.file_alignment);
-            println!("Major Operating System Version: {}", optional_header.major_operating_system_version);
-            println!("Minor Operating System Version: {}", optional_header.minor_operating_system_version);
-            println!("Major Image Version: {}", optional_header.major_image_version);
-            println!("Minor Image Version: {}", optional_header.minor_image_version);
-            println!("Major Subsystem Version: {}", optional_header.major_subsystem_version);
-            println!("Minor Subsystem Version: {}", optional_header.minor_subsystem_version);
-            println!("Win32 Version Value: {}", optional_header.win32_version_value);
-            println!("Size of Image: {}", optional_header.size_of_image);
-            println!("Size of Headers: {}", optional_header.size_of_headers);
-            println!("CheckSum: {}", optional_header.check_sum);
-            println!("Subsystem: {:?}", subsystem);
-            println!("DLL Characteristics: {}", dllCharacteristics);
-            println!("Size of Stack Reserve: {}", optional_header.size_of_stack_reserve);
-            println!("Size of Stack Commit: {}", optional_header.size_of_stack_commit);
-            println!("Size of Heap Reserve: {}", optional_header.size_of_heap_reserve);
-            println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
-            println!("Loader Flags: {}", optional_header.loader_flags);
-            println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
-
-            match parse_data_directories(binary, offset) {
-                Ok(()) => {},
-                Err(err) => {
-                    return Err(err);
-                }
-            }
+            parse_data_directories(binary, offset)?;
         }
         Magic::PE64 => {
             let optional_header = from_bytes::<optional_header_64>(&binary[offset..offset+112]);
             offset += 112;
+            print!("{}\n", optional_header);
 
-            let subsystem = Subsystem::from_u16(optional_header.subsystem)
-                .expect("Failed to get subsystem");
-            let dllCharacteristics = DLLCharacteristics::from_bits(optional_header.dll_characteristics)
-                .expect("Failed to get DLL characteristics");
-
-            println!("Magic: PE32+");
-            println!("Major Linker Version: {}", optional_header.major_linker_version);
-            println!("Minor Linker Version: {}", optional_header.minor_linker_version);
-            println!("Size of Code: {}", optional_header.size_of_code);
-            println!("Size of Initialized Data: {}", optional_header.size_of_initialized_data);
-            println!("Size of Uninitialized Data: {}", optional_header.size_of_uninitialized_data);
-            println!("Address of Entry Point: {}", optional_header.address_of_entry_point);
-            println!("Base of Code: {}", optional_header.base_of_code);
-            println!("Image Base: {}", optional_header.image_base);
-            println!("Section Alignment: {}", optional_header.section_alignment);
-            println!("File Alignment: {}", optional_header.file_alignment);
-            println!("Major Operating System Version: {}", optional_header.major_operating_system_version);
-            println!("Minor Operating System Version: {}", optional_header.minor_operating_system_version);
-            println!("Major Image Version: {}", optional_header.major_image_version);
-            println!("Minor Image Version: {}", optional_header.minor_image_version);
-            println!("Major Subsystem Version: {}", optional_header.major_subsystem_version);
-            println!("Minor Subsystem Version: {}", optional_header.minor_subsystem_version);
-            println!("Win32 Version Value: {}", optional_header.win32_version_value);
-            println!("Size of Image: {}", optional_header.size_of_image);
-            println!("Size of Headers: {}", optional_header.size_of_headers);
-            println!("CheckSum: {}", optional_header.check_sum);
-            println!("Subsystem: {:?}", subsystem);
-            println!("DLL Characteristics: {}", dllCharacteristics);
-            println!("Size of Stack Reserve: {}", optional_header.size_of_stack_reserve);
-            println!("Size of Stack Commit: {}", optional_header.size_of_stack_commit);
-            println!("Size of Heap Reserve: {}", optional_header.size_of_heap_reserve);
-            println!("Size of Heap Commit: {}", optional_header.size_of_heap_commit);
-            println!("Loader Flags: {}", optional_header.loader_flags);
-            println!("Number of RVA and Sizes: {}", optional_header.number_of_rva_and_sizes);
-
-            match parse_data_directories(binary, offset) {
-                Ok(()) => {},
-                Err(err) => {
-                    return Err(err);
-                }
-            }
+            parse_data_directories(binary, offset)?;
         }
     }
     println!();
@@ -182,9 +103,8 @@ pub fn parse_data_directories(binary: Vec<u8>, offset: usize) -> Result<(), Erro
 
     // Reserved, must be zero.
     let reserved = from_bytes::<data_directory>(&binary[offset..offset+8]);
-    offset += 8;
 
-    println!("\nData Directories");
+    println!("Data Directories");
     println!("----------------");
     println!("Export Table:            {:#08x} ({})", export_table.virtual_address, export_table.size);
     println!("Import Table:            {:#08x} ({})", import_table.virtual_address, import_table.size);
@@ -299,6 +219,48 @@ pub struct optional_header_32 {
     pub number_of_rva_and_sizes: u32
 }
 
+impl fmt::Display for optional_header_32 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let subsystem = Subsystem::from_u16(self.subsystem)
+            .expect("Failed to get subsystem");
+        let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
+            .expect("Failed to get DLL characteristics");
+
+        writeln!(f, "Magic: PE32")?;
+        writeln!(f, "Major Linker Version: {}", self.major_linker_version)?;
+        writeln!(f, "Minor Linker Version: {}", self.minor_linker_version)?;
+        writeln!(f, "Size of Code: {}", self.size_of_code)?;
+        writeln!(f, "Size of Initialized Data: {}", self.size_of_initialized_data)?;
+        writeln!(f, "Size of Uninitialized Data: {}", self.size_of_uninitialized_data)?;
+        writeln!(f, "Address of Entry Point: {}", self.address_of_entry_point)?;
+        writeln!(f, "Base of Code: {}", self.base_of_code)?;
+        writeln!(f, "Base of Data: {}", self.base_of_data)?;
+        writeln!(f, "Image Base: {}", self.image_base)?;
+        writeln!(f, "Section Alignment: {}", self.section_alignment)?;
+        writeln!(f, "File Alignment: {}", self.file_alignment)?;
+        writeln!(f, "Major Operating System Version: {}", self.major_operating_system_version)?;
+        writeln!(f, "Minor Operating System Version: {}", self.minor_operating_system_version)?;
+        writeln!(f, "Major Image Version: {}", self.major_image_version)?;
+        writeln!(f, "Minor Image Version: {}", self.minor_image_version)?;
+        writeln!(f, "Major Subsystem Version: {}", self.major_subsystem_version)?;
+        writeln!(f, "Minor Subsystem Version: {}", self.minor_subsystem_version)?;
+        writeln!(f, "Win32 Version Value: {}", self.win32_version_value)?;
+        writeln!(f, "Size of Image: {}", self.size_of_image)?;
+        writeln!(f, "Size of Headers: {}", self.size_of_headers)?;
+        writeln!(f, "CheckSum: {}", self.check_sum)?;
+        writeln!(f, "Subsystem: {:?}", subsystem)?;
+        writeln!(f, "DLL Characteristics: {}", dll_characteristics)?;
+        writeln!(f, "Size of Stack Reserve: {}", self.size_of_stack_reserve)?;
+        writeln!(f, "Size of Stack Commit: {}", self.size_of_stack_commit)?;
+        writeln!(f, "Size of Heap Reserve: {}", self.size_of_heap_reserve)?;
+        writeln!(f, "Size of Heap Commit: {}", self.size_of_heap_commit)?;
+        writeln!(f, "Loader Flags: {}", self.loader_flags)?;
+        writeln!(f, "Number of RVA and Sizes: {}", self.number_of_rva_and_sizes)?;
+
+        Ok(())
+    }
+}
+
 /// PE32+ Optional Header (Image Only)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
@@ -371,6 +333,47 @@ pub struct optional_header_64 {
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32
+}
+
+impl fmt::Display for optional_header_64 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let subsystem = Subsystem::from_u16(self.subsystem)
+            .expect("Failed to get subsystem");
+        let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
+            .expect("Failed to get DLL characteristics");
+
+        writeln!(f, "Magic: PE32")?;
+        writeln!(f, "Major Linker Version: {}", self.major_linker_version)?;
+        writeln!(f, "Minor Linker Version: {}", self.minor_linker_version)?;
+        writeln!(f, "Size of Code: {}", self.size_of_code)?;
+        writeln!(f, "Size of Initialized Data: {}", self.size_of_initialized_data)?;
+        writeln!(f, "Size of Uninitialized Data: {}", self.size_of_uninitialized_data)?;
+        writeln!(f, "Address of Entry Point: {}", self.address_of_entry_point)?;
+        writeln!(f, "Base of Code: {}", self.base_of_code)?;
+        writeln!(f, "Image Base: {}", self.image_base)?;
+        writeln!(f, "Section Alignment: {}", self.section_alignment)?;
+        writeln!(f, "File Alignment: {}", self.file_alignment)?;
+        writeln!(f, "Major Operating System Version: {}", self.major_operating_system_version)?;
+        writeln!(f, "Minor Operating System Version: {}", self.minor_operating_system_version)?;
+        writeln!(f, "Major Image Version: {}", self.major_image_version)?;
+        writeln!(f, "Minor Image Version: {}", self.minor_image_version)?;
+        writeln!(f, "Major Subsystem Version: {}", self.major_subsystem_version)?;
+        writeln!(f, "Minor Subsystem Version: {}", self.minor_subsystem_version)?;
+        writeln!(f, "Win32 Version Value: {}", self.win32_version_value)?;
+        writeln!(f, "Size of Image: {}", self.size_of_image)?;
+        writeln!(f, "Size of Headers: {}", self.size_of_headers)?;
+        writeln!(f, "CheckSum: {}", self.check_sum)?;
+        writeln!(f, "Subsystem: {:?}", subsystem)?;
+        writeln!(f, "DLL Characteristics: {}", dll_characteristics)?;
+        writeln!(f, "Size of Stack Reserve: {}", self.size_of_stack_reserve)?;
+        writeln!(f, "Size of Stack Commit: {}", self.size_of_stack_commit)?;
+        writeln!(f, "Size of Heap Reserve: {}", self.size_of_heap_reserve)?;
+        writeln!(f, "Size of Heap Commit: {}", self.size_of_heap_commit)?;
+        writeln!(f, "Loader Flags: {}", self.loader_flags)?;
+        writeln!(f, "Number of RVA and Sizes: {}", self.number_of_rva_and_sizes)?;
+
+        Ok(())
+    }
 }
 
 /// The following values defined for the Subsystem field of the optional header determine which Windows subsystem (if any) is required to run the image.
