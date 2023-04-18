@@ -3,6 +3,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use std::{fmt, str};
+use chrono::NaiveDateTime;
 
 // COFF File Header (Object and Image)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
@@ -32,11 +33,16 @@ impl fmt::Display for coff_file_header {
             .expect("Failed to get machine type");
         let characteristics = Characteristics::from_bits(self.characterisitcs)
             .expect("Failed to get characterisitcs");
+        let time = NaiveDateTime::from_timestamp_opt(self.time_date_stamp.into(), 0)
+            .expect("Failed to get time date stamp");
 
         writeln!(f, "COFF Header")?;
         writeln!(f, "-----------")?;
         writeln!(f, "Machine Type: {:?}", machine_type)?;
         writeln!(f, "Number of Sections: {}", self.number_of_sections)?;
+        writeln!(f, "Time Date Stamp: {}", time)?;
+        writeln!(f, "Pointer of Symbol Table: {:#08x}", self.pointer_to_symbol_table)?;
+        writeln!(f, "Number of Symbols: {}", self.number_of_symbols)?;
         writeln!(f, "Size of Optional Header: {}", self.size_of_optional_header)?;
         writeln!(f, "Characteristics: {}", characteristics)?;
 
