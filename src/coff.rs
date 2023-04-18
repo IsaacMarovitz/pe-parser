@@ -38,13 +38,13 @@ impl fmt::Display for coff_file_header {
 
         writeln!(f, "COFF Header")?;
         writeln!(f, "-----------")?;
-        writeln!(f, "Machine Type: {:?}", machine_type)?;
-        writeln!(f, "Number of Sections: {}", self.number_of_sections)?;
-        writeln!(f, "Time Date Stamp: {}", time)?;
-        writeln!(f, "Pointer of Symbol Table: {:#08x}", self.pointer_to_symbol_table)?;
-        writeln!(f, "Number of Symbols: {}", self.number_of_symbols)?;
+        writeln!(f, "Machine Type:            {:?}", machine_type)?;
+        writeln!(f, "Number of Sections:      {}", self.number_of_sections)?;
+        writeln!(f, "Time Date Stamp:         {}", time)?;
+        writeln!(f, "Pointer of Symbol Table: {:#010x}", self.pointer_to_symbol_table)?;
+        writeln!(f, "Number of Symbols:       {}", self.number_of_symbols)?;
         writeln!(f, "Size of Optional Header: {}", self.size_of_optional_header)?;
-        writeln!(f, "Characteristics: {}", characteristics)?;
+        writeln!(f, "Characteristics:         {}", characteristics)?;
 
         Ok(())
     }

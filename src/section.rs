@@ -70,16 +70,16 @@ impl fmt::Display for section_header {
 
         writeln!(f, "Section Header")?;
         writeln!(f, "--------------")?;
-        writeln!(f, "Name: {}", name)?;
-        writeln!(f, "Virtual Size: {}", self.virtual_size)?;
-        writeln!(f, "Virtual Address: {:#08x}", self.virtual_address)?;
-        writeln!(f, "Size of Raw Data: {}", self.size_of_raw_data)?;
-        writeln!(f, "Pointer to Raw Data: {}", self.pointer_to_raw_data)?;
-        writeln!(f, "Pointer to Relocations: {}", self.pointer_to_relocations)?;
+        writeln!(f, "Name:                    {}", name)?;
+        writeln!(f, "Virtual Size:            {}", self.virtual_size)?;
+        writeln!(f, "Virtual Address:         {:#010x}", self.virtual_address)?;
+        writeln!(f, "Size of Raw Data:        {}", self.size_of_raw_data)?;
+        writeln!(f, "Pointer to Raw Data:     {}", self.pointer_to_raw_data)?;
+        writeln!(f, "Pointer to Relocations:  {}", self.pointer_to_relocations)?;
         writeln!(f, "Pointer to Line-numbers: {}", self.pointer_to_linenumbers)?;
-        writeln!(f, "Number of Relocations: {}", self.number_of_relocations)?;
-        writeln!(f, "Number of Line-numbers: {}", self.number_of_linenumbers)?;
-        writeln!(f, "Characteristics: {}", characteristics)?;
+        writeln!(f, "Number of Relocations:   {}", self.number_of_relocations)?;
+        writeln!(f, "Number of Line-numbers:  {}", self.number_of_linenumbers)?;
+        writeln!(f, "Characteristics:         {}", characteristics)?;
 
         Ok(())
     }
