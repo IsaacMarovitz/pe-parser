@@ -8,6 +8,7 @@ description = "A blazing fast PE Parser with pretty print"
 readme = "README.md"
 repository = "https://github.com/IsaacMarovitz/pe-parser"
 keywords = ["parser", "cli", "windows", "binary"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
