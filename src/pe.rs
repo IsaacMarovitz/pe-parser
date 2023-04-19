@@ -33,13 +33,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
     offset += 20;
 
-    let mut has_optional_header = true;
-
-    if pe.coff.size_of_optional_header == 0 {
-        has_optional_header = false;
-    }
-
-    if has_optional_header {
+    if pe.coff.size_of_optional_header != 0 {
         let magic = Magic::from_u16(binary.read_u16(offset))
             .expect("Failed to get magic!");
 
