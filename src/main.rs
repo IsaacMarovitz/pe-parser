@@ -1,17 +1,11 @@
-pub mod scribe;
-pub mod coff;
-pub mod optional;
-pub mod section;
-pub mod pe;
-
 use std::io::{Error, ErrorKind};
 use std::{env, fs};
-use crate::coff::coff_file_header;
-use crate::pe::{parse_portable_executable};
-use crate::section::parse_section_table;
+use pe_parser::pe::parse_portable_executable;
 
 fn main() -> Result<(), Error> {
-    println!("PE Parser - Version 0.1.0");
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    println!("PE Parser - Version {}", VERSION);
     println!("=========================\n");
 
     let args: Vec<String> = env::args().collect();

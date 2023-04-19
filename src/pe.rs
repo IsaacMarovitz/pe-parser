@@ -1,4 +1,4 @@
-use crate::{coff_file_header, parse_section_table, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::section_header};
+use crate::{coff::coff_file_header, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}};
 use std::io::{Error, ErrorKind};
 use bytemuck::from_bytes;
 use num_traits::FromPrimitive;
