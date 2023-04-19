@@ -1,7 +1,7 @@
-mod scribe;
-mod coff;
-mod optional;
-mod section;
+pub mod scribe;
+pub mod coff;
+pub mod optional;
+pub mod section;
 
 use std::io::{Error, ErrorKind};
 use std::{env, fs};
