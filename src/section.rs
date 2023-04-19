@@ -63,9 +63,9 @@ pub struct section_header {
 
 impl fmt::Display for section_header {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = String::from_utf8(self.name.to_le_bytes().to_vec())
+        let name = self.get_name()
             .expect("Failed to get name");
-        let characteristics = SectionFlags::from_bits(self.characterisitcs)
+        let characteristics = self.get_characteristics()
             .expect("Failed to get characteristics");
 
         writeln!(f, "Section Header")?;
@@ -213,5 +213,20 @@ impl str::FromStr for SectionFlags {
 
     fn from_str(flags: &str) -> Result<Self, Self::Err> {
         Ok(Self(flags.parse()?))
+    }
+}
+
+pub trait Section {
+    fn get_name(&self) -> Option<String>;
+    fn get_characteristics(&self) -> Option<SectionFlags>;
+}
+
+impl Section for section_header {
+    fn get_name(&self) -> Option<String> {
+        String::from_utf8(self.name.to_le_bytes().to_vec()).ok()
+    }
+
+    fn get_characteristics(&self) -> Option<SectionFlags> {
+        SectionFlags::from_bits(self.characterisitcs)
     }
 }

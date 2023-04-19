@@ -29,11 +29,11 @@ pub struct coff_file_header {
 
 impl fmt::Display for coff_file_header {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let machine_type = MachineTypes::from_u16(self.machine)
+        let machine_type = self.get_machine_type()
             .expect("Failed to get machine type");
-        let characteristics = Characteristics::from_bits(self.characterisitcs)
+        let characteristics = self.get_characteristics()
             .expect("Failed to get characterisitcs");
-        let time = NaiveDateTime::from_timestamp_opt(self.time_date_stamp.into(), 0)
+        let time = self.get_time_date_stamp()
             .expect("Failed to get time date stamp");
 
         writeln!(f, "COFF Header")?;
@@ -178,5 +178,25 @@ impl str::FromStr for Characteristics {
 
     fn from_str(flags: &str) -> Result<Self, Self::Err> {
         Ok(Self(flags.parse()?))
+    }
+}
+
+pub trait Coff {
+    fn get_machine_type(&self) -> Option<MachineTypes>;
+    fn get_characteristics(&self) -> Option<Characteristics>;
+    fn get_time_date_stamp(&self) -> Option<NaiveDateTime>;
+}
+
+impl Coff for coff_file_header {
+    fn get_machine_type(&self) -> Option<MachineTypes> {
+        MachineTypes::from_u16(self.machine)
+    }
+
+    fn get_characteristics(&self) -> Option<Characteristics> {
+        Characteristics::from_bits(self.characterisitcs)
+    }
+
+    fn get_time_date_stamp(&self) -> Option<NaiveDateTime> {
+        NaiveDateTime::from_timestamp_opt(self.time_date_stamp.into(), 0)
     }
 }

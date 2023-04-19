@@ -185,9 +185,9 @@ pub struct optional_header_32 {
 
 impl fmt::Display for optional_header_32 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let subsystem = Subsystem::from_u16(self.subsystem)
+        let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
-        let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
+        let dll_characteristics = self.get_dll_characterisitcs()
             .expect("Failed to get DLL characteristics");
 
         writeln!(f, "Optional Header")?;
@@ -301,9 +301,9 @@ pub struct optional_header_64 {
 
 impl fmt::Display for optional_header_64 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let subsystem = Subsystem::from_u16(self.subsystem)
+        let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
-        let dll_characteristics = DLLCharacteristics::from_bits(self.dll_characteristics)
+        let dll_characteristics = self.get_dll_characterisitcs()
             .expect("Failed to get DLL characteristics");
 
         writeln!(f, "Optional Header")?;
@@ -427,5 +427,30 @@ impl str::FromStr for DLLCharacteristics {
 
     fn from_str(flags: &str) -> Result<Self, Self::Err> {
         Ok(Self(flags.parse()?))
+    }
+}
+
+pub trait Optional {
+    fn get_subsystem(&self) -> Option<Subsystem>;
+    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
+}
+
+impl Optional for optional_header_32 {
+    fn get_subsystem(&self) -> Option<Subsystem> {
+        Subsystem::from_u16(self.subsystem)
+    }
+
+    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
+        DLLCharacteristics::from_bits(self.dll_characteristics)
+    }
+}
+
+impl Optional for optional_header_64 {
+    fn get_subsystem(&self) -> Option<Subsystem> {
+        Subsystem::from_u16(self.subsystem)
+    }
+
+    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
+        DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 }
