@@ -5,27 +5,6 @@ use std::{io::Error, ops::AddAssign};
 use bitflags::bitflags;
 use std::{fmt, str};
 
-use crate::scribe::Scribe;
-
-pub fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<(), Error> {
-    let magic = Magic::from_u16(binary.read_u16(*offset))
-        .expect("Failed to get magic!");
-
-    match magic {
-        Magic::PE32 => {
-            let optional_header = from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
-            offset.add_assign(96 + 128);
-            print!("{}\n", optional_header);
-        }
-        Magic::PE64 => {
-            let optional_header = from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
-            offset.add_assign(112 + 128);
-            print!("{}\n", optional_header);
-        }
-    }
-    Ok(())
-}
-
 #[derive(FromPrimitive, Debug)]
 #[repr(u16)]
 pub enum Magic {
@@ -430,9 +409,10 @@ impl str::FromStr for DLLCharacteristics {
     }
 }
 
-pub trait Optional {
+pub trait Optional: Sized {
     fn get_subsystem(&self) -> Option<Subsystem>;
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error>;
 }
 
 impl Optional for optional_header_32 {
@@ -443,6 +423,12 @@ impl Optional for optional_header_32 {
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
+
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
+        let optional_header = from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
+        offset.add_assign(96 + 128);
+        Ok(*optional_header)
+    }
 }
 
 impl Optional for optional_header_64 {
@@ -452,5 +438,11 @@ impl Optional for optional_header_64 {
 
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
         DLLCharacteristics::from_bits(self.dll_characteristics)
+    }
+
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
+        let optional_header = from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
+        offset.add_assign(112 + 128);
+        Ok(*optional_header)
     }
 }
