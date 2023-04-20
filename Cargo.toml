@@ -15,7 +15,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 bytemuck = {version = "1.13.1", features = ["derive"]}
 num-traits = "0.2"
-num-derive = "0.2"
+num-derive = "0.3"
 bitflags = "2.1.0"
 chrono = "0.4.24"
 clap = { version = "4.2.4", features = ["cargo"] }
