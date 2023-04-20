@@ -1,4 +1,4 @@
-use crate::{coff::coff_file_header, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}};
+use crate::{coff::coff_file_header, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table, Section}};
 use std::io::{Error, ErrorKind};
 use bytemuck::from_bytes;
 use num_traits::FromPrimitive;
@@ -48,6 +48,23 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     }
 
     pe.section_table = parse_section_table(binary, offset, pe.coff.number_of_sections);
+
+    for section in pe.section_table.iter() {
+        let name = section.get_name()
+            .expect("Failed to get name")
+            .to_str()
+            .expect("Failed to get string");
+
+        match name {
+            ".edata" => {
+                println!(".edata Section");
+            }
+            ".idata" => {
+                println!(".idata Section");
+            }
+            _ => {}
+        }
+    }
 
     Ok(pe)
 }

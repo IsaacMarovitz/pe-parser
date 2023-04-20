@@ -122,41 +122,41 @@ bitflags! {
         /// This indicates that the file does not contain base relocations and must therefore be loaded at its preferred base address.
         /// If the base address is not available, the loader reports an error.
         /// The default behavior of the linker is to strip base relocations from executable (EXE) files.
-        const imageFileRelocsStripped = 0x0001;
+        const IMAGE_FILE_RELOCS_STRIPPED = 0x0001;
         /// Image only. This indicates that the image file is valid and can be run.
         /// If this flag is not set, it indicates a linker error.
-        const imageFileExecutableImage = 0x0002;
+        const IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
         /// COFF line numbers have been removed. This flag is deprecated and should be zero.
-        const imageFileLineNumsStripped = 0x0004;
+        const IMAGE_FILE_LINE_NUMS_STRIPPED = 0x0004;
         /// COFF symbol table entries for local symbols have been removed. This flag is deprecated and should be zero.
-        const imageFileLocalSymsStripped = 0x0008;
+        const IMAGE_FILE_LOCAL_SYMS_STRIPPED = 0x0008;
         /// Obsolete. Aggressively trim working set. This flag is deprecated for Windows 2000 and later and must be zero.
-        const imageFileAggresiveWsTrim = 0x0010;
+        const IMAGE_FILE_AGGRESIVE_WS_TRIM = 0x0010;
         /// Application can handle > 2-GB addresses.
-        const imageFileLargeAddressAware = 0x0020;
+        const IMAGE_FILE_LARGE_ADDRESS_AWARE = 0x0020;
         /// This flag is reserved for future use.
-        const imageFileReserved1 = 0x0040;
+        const IMAGE_FILE_RESERVED1 = 0x0040;
         /// Little endian: the least significant bit (LSB) precedes the most significant bit (MSB) in memory.
         /// This flag is deprecated and should be zero.
-        const imageFileBytesReservedLo = 0x0080;
+        const IMAGE_FILE_BYTES_RESERVED_LO = 0x0080;
         /// Machine is based on a 32-bit-word architecture.
-        const imageFile32bitMachine = 0x0100;
+        const IMAGE_FILE_32BIT_MACHINE = 0x0100;
         /// Debugging information is removed from the image file.
-        const imageFileDebugStripped = 0x0200;
+        const IMAGE_FILE_DEBUG_STRIPPED = 0x0200;
         /// If the image is on removable media, fully load it and copy it to the swap file.
-        const imageFileRemovableRunFromSwap = 0x0400;
+        const IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP = 0x0400;
         /// If the image is on network media, fully load it and copy it to the swap file.
-        const imageFileNetRunFromSwap = 0x0800;
+        const IMAGE_FILE_NET_RUN_FROM_SWAP = 0x0800;
         /// The image file is a system file, not a user program.
-        const imageFileSystem = 0x1000;
+        const IMAGE_FILE_SYSTEM = 0x1000;
         /// The image file is a dynamic-link library (DLL).
         /// Such files are considered executable files for almost all purposes, although they cannot be directly run.
-        const imageFileDll = 0x2000;
+        const IMAGE_FILE_DLL = 0x2000;
         /// The file should be run only on a uniprocessor machine.
-        const imageFileUpSystemOnly = 0x4000;
+        const IMAGE_FILE_UP_SYSTEM_ONLY = 0x4000;
         /// Big endian: the MSB precedes the LSB in memory. 
         /// This flag is deprecated and should be zero.
-        const imageFileBytesReservedHi = 0x8000;
+        const IMAGE_FILE_BYTES_RESERVED_HI = 0x8000;
     }
 }
 

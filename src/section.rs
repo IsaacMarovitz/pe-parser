@@ -1,6 +1,7 @@
 use bytemuck::checked::from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
+use std::ffi::CStr;
 use std::{fmt, str};
 
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<section_header> {
@@ -23,7 +24,7 @@ pub struct section_header {
     /// For longer names, this field contains a slash (/) that is followed by an ASCII representation of a decimal number that is an offset into the string table. 
     /// Executable images do not use a string table and do not support section names longer than 8 characters. 
     /// Long names in object files are truncated if they are emitted to an executable file.
-    pub name: u64,
+    pub name: [u8; 8],
     /// The total size of the section when loaded into memory. 
     /// If this value is greater than `size_of_raw_data`, the section is zero-padded. 
     /// This field is valid only for executable images and should be set to zero for object files.
@@ -69,7 +70,7 @@ impl fmt::Display for section_header {
 
         writeln!(f, "Section Header")?;
         writeln!(f, "--------------")?;
-        writeln!(f, "Name:                    {}", name)?;
+        writeln!(f, "Name:                    {:?}", name)?;
         writeln!(f, "Virtual Size:            {}", self.virtual_size)?;
         writeln!(f, "Virtual Address:         {:#010x}", self.virtual_address)?;
         writeln!(f, "Size of Raw Data:        {}", self.size_of_raw_data)?;
@@ -87,110 +88,110 @@ impl fmt::Display for section_header {
 bitflags! {
     pub struct SectionFlags: u32 {
         /// Reserved for future use.
-        const reserved0 = 0x00000000;
+        const IMAGE_SCN_RESERVED0 = 0x00000000;
         /// Reserved for future use.
-        const reserved1 = 0x00000001;
+        const IMAGE_SCN_RESERVED1 = 0x00000001;
         /// Reserved for future use.
-        const reserved2 = 0x00000002;
+        const IMAGE_SCN_RESERVED2 = 0x00000002;
         /// Reserved for future use.
-        const reserved4 = 0x00000004;
+        const IMAGE_SCN_RESERVED4 = 0x00000004;
         /// The section should not be padded to the next boundary.
         /// This flag is obsolete and is replaced by `align1Bytes`.
         /// This is valid only for object files.
-        const typeNoPad = 0x00000008;
+        const IMAGE_SCN_TYPE_NO_PAD = 0x00000008;
         /// Reserved for future use.
-        const reserved10 = 0x00000010;
+        const IMAGE_SCN_RESERVED10 = 0x00000010;
         /// The section contains executable code.
-        const cntCode = 0x00000020;
+        const IMAGE_SCN_CNT_CODE = 0x00000020;
         /// The section contains initialized data.
-        const cntInitalizedData = 0x00000040;
+        const IMAGE_SCN_CNT_INITALIZED_DATA = 0x00000040;
         /// The section contains uninitialized data.
-        const cntUninitalizedData = 0x00000080;
+        const IMAGE_SCN_CNT_UNINITALIZED_DATA = 0x00000080;
         /// Reserved for future use.
-        const lnkOther = 0x00000100;
+        const IMAGE_SCN_LNK_OTHER = 0x00000100;
         /// The section contains comments or other information.
         /// The .drectve section has this type.
         /// This is valid for object files only.
-        const lnkInfo = 0x00000200;
+        const IMAGE_SCN_LNK_INFO = 0x00000200;
         /// Reserved for future use.
-        const reserved400 = 0x00000400;
+        const IMAGE_SCN_RESERVED400 = 0x00000400;
         /// The section will not become part of the image.
         /// This is valid only for object files.
-        const lnkRemove = 0x00000800;
+        const IMAGE_SCN_LNK_REMOVE = 0x00000800;
         /// The section contains COMDAT data. 
         /// This is valid only for object files.
-        const lnkComdat = 0x00001000;
+        const IMAGE_SCN_LNK_COMDAT = 0x00001000;
         /// The section contains data referenced through the global pointer (GP).
-        const gpRel = 0x00008000;
+        const IMAGE_SCN_GPREL = 0x00008000;
         /// Reserved for future use.
-        const memPurgable = 0x00020000;
+        const IMAGE_SCN_MEM_PURGABLE = 0x00020000;
         /// Reserved for future use.
-        const mem16Bit = 0x00020000;
+        const IMAGE_SCN_MEM_16BIT = 0x00020000;
         /// Reserved for future use.
-        const memLocked = 0x00040000;
+        const IMAGE_SCN_MEM_LOCKED = 0x00040000;
         /// Reserved for future use.
-        const memPreload = 0x00080000;
+        const IMAGE_SCN_MEM_PRELOAD = 0x00080000;
         /// Align data on a 1-byte boundary.
         /// Valid only for object files.
-        const align1Bytes = 0x00100000;
+        const IMAGE_SCN_ALIGN_1BYTES = 0x00100000;
         /// Align data on a 2-byte boundary.
         /// Valid only for object files.
-        const align2Bytes = 0x00200000;
+        const IMAGE_SCN_ALIGN_2BYTES = 0x00200000;
         /// Align data on a 4-byte boundary.
         /// Valid only for object files.
-        const align4Bytes = 0x00300000;
+        const IMAGE_SCN_ALIGN_4BYTES = 0x00300000;
         /// Align data on a 8-byte boundary.
         /// Valid only for object files.
-        const align8Bytes = 0x00400000;
+        const IMAGE_SCN_ALIGN_8BYTES = 0x00400000;
         /// Align data on a 16-byte boundary.
         /// Valid only for object files.
-        const align16Bytes = 0x00500000;
+        const IMAGE_SCN_ALIGN_16BYTES = 0x00500000;
         /// Align data on a 32-byte boundary.
         /// Valid only for object files.
-        const align32Bytes = 0x00600000;
+        const IMAGE_SCN_ALIGN_32BYTES = 0x00600000;
         /// Align data on a 64-byte boundary.
         /// Valid only for object files.
-        const align64Bytes = 0x00700000;
+        const IMAGE_SCN_ALIGN_64BYTES = 0x00700000;
         /// Align data on a 128-byte boundary.
         /// Valid only for object files.
-        const align128Bytes = 0x00800000;
+        const IMAGE_SCN_ALIGN_128BYTES = 0x00800000;
         /// Align data on a 256-byte boundary.
         /// Valid only for object files.
-        const align256Bytes = 0x00900000;
+        const IMAGE_SCN_ALIGN_256BYTES = 0x00900000;
         /// Align data on a 512-byte boundary.
         /// Valid only for object files.
-        const align512Bytes = 0x00A00000;
+        const IMAGE_SCN_ALIGN_512BYTES = 0x00A00000;
         /// Align data on a 1024-byte boundary.
         /// Valid only for object files.
-        const align1024Bytes = 0x00B00000;
+        const IMAGE_SCN_ALIGN_1024BYTES = 0x00B00000;
         /// Align data on a 2048-byte boundary.
         /// Valid only for object files.
-        const align2048Bytes = 0x00C00000;
+        const IMAGE_SCN_ALIGN_2048BYTES = 0x00C00000;
         /// Align data on a 4096-byte boundary.
         /// Valid only for object files.
-        const align4096Bytes = 0x00D00000;
+        const IMAGE_SCN_ALIGN_4096BYTES = 0x00D00000;
         /// Align data on a 8192-byte boundary.
         /// Valid only for object files.
-        const align8192Bytes = 0x00E00000;
+        const IMAGE_SCN_ALIGN_8192BYTES = 0x00E00000;
         /// The section contains extended relocations.
         /// `lnkNrelocOvfl` indicates that the count of relocations for the section exceeds the 16 bits that are reserved for it in the section header.
         /// If the bit is set and the `number_of_relocations` field in the section header is 0xffff, the actual relocation count is stored in the 32-bit `virtual_address` field of the first relocation.
         /// It is an error if `lnkNrelocOvfl` is set and there are fewer than 0xffff relocations in the section.
-        const lnkNrelocOvfl = 0x01000000;
+        const IMAGE_SCN_LNK_NRELOC_OVFL = 0x01000000;
         /// The section can be discarded as needed.
-        const memDiscardable = 0x02000000;
+        const IMAGE_SCN_MEM_DISCARDABLE = 0x02000000;
         /// The section cannot be cached.
-        const memNotCached = 0x04000000;
+        const IMAGE_SCN_MEM_NOT_CACHED = 0x04000000;
         /// The section is not pageable.
-        const memNotPaged = 0x08000000;
+        const IMAGE_SCN_MEM_NOT_PAGED = 0x08000000;
         /// The section can be shared in memory.
-        const memShared = 0x10000000;
+        const IMAGE_SCN_MEM_SHARED = 0x10000000;
         /// The section can be executed as code.
-        const memExecute = 0x20000000;
+        const IMAGE_SCN_MEM_EXECUTE = 0x20000000;
         /// The section can be read.
-        const memRead = 0x40000000;
+        const IMAGE_SCN_MEM_READ = 0x40000000;
         /// The section can be written to.
-        const memWrite = 0x80000000;
+        const IMAGE_SCN_MEM_WRITE = 0x80000000;
     }
 }
 
@@ -216,13 +217,13 @@ impl str::FromStr for SectionFlags {
 }
 
 pub trait Section {
-    fn get_name(&self) -> Option<String>;
+    fn get_name(&self) -> Option<&CStr>;
     fn get_characteristics(&self) -> Option<SectionFlags>;
 }
 
 impl Section for section_header {
-    fn get_name(&self) -> Option<String> {
-        String::from_utf8(self.name.to_le_bytes().to_vec()).ok()
+    fn get_name(&self) -> Option<&CStr> {
+        CStr::from_bytes_until_nul(&self.name).ok()
     }
 
     fn get_characteristics(&self) -> Option<SectionFlags> {
