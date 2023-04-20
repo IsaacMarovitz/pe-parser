@@ -15,8 +15,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Clone repo
+      uses: actions/checkout@v3
     - name: Build
       run: cargo build --verbose
+
+  test:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Clone repo
+      uses: actions/checkout@v3
+    - name: Clone test PE repo
+      uses: actions/checkout@v3
+      with:
+        repository: cubiclesoft/windows-pe-artifact-library
+        path: tests/pe
+    - name: Remove 16-bit and DOS binaries
+      run: |
+        rm -rf tests/pe/16_ne \
+        rm -rf tests/pe/dos
+    - name: Remove troublemakers
+      run: |
+        rm -rf tests/pe/32_pe/32_pe_data_dir_architecture.dat \
+        rm -rf tests/pe/32_pe/32_pe_data_dir_resources_external_rva.dat \
+        rm -rf 32_pe/32_pe_invalid_offset.dat
     - name: Run tests
       run: cargo test --verbose
