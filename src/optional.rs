@@ -1,7 +1,6 @@
-use bytemuck::{Pod, Zeroable, from_bytes};
+use bytemuck::{Pod, Zeroable, checked::{try_from_bytes, CheckedCastError}};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
-use std::{io::Error, ops::AddAssign};
 use bitflags::bitflags;
 use std::{fmt, str};
 
@@ -412,7 +411,7 @@ impl str::FromStr for DLLCharacteristics {
 pub trait Optional: Sized {
     fn get_subsystem(&self) -> Option<Subsystem>;
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error>;
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError>;
 }
 
 impl Optional for optional_header_32 {
@@ -424,10 +423,11 @@ impl Optional for optional_header_32 {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let optional_header = from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
-        offset.add_assign(96 + 128);
-        Ok(*optional_header)
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError> {
+        let optional_header = try_from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
+        let size = std::mem::size_of::<Self>();
+        *offset += size;
+        optional_header.copied()
     }
 }
 
@@ -440,9 +440,10 @@ impl Optional for optional_header_64 {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let optional_header = from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
-        offset.add_assign(112 + 128);
-        Ok(*optional_header)
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError> {
+        let optional_header = try_from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
+        let size = std::mem::size_of::<Self>();
+        *offset += size;
+        optional_header.copied()
     }
 }

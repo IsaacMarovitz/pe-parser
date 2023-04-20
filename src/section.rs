@@ -1,4 +1,4 @@
-use bytemuck::checked::from_bytes;
+use bytemuck::checked::try_from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
 use std::ffi::CStr;
@@ -7,10 +7,13 @@ use std::{fmt, str};
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<section_header> {
     let mut offset = offset;
     let mut headers: Vec<section_header> = Vec::new();
+    let header_size = std::mem::size_of::<section_header>();
 
     for _ in 0..number_of_sections {
-        headers.push(*from_bytes::<section_header>(&binary[offset..offset+40]));
-        offset += 40;
+        if let Some(header) = try_from_bytes::<section_header>(&binary[offset..offset + header_size]).ok() {
+            headers.push(*header);
+        }
+        offset += header_size;
     }
 
     headers
@@ -217,13 +220,13 @@ impl str::FromStr for SectionFlags {
 }
 
 pub trait Section {
-    fn get_name(&self) -> Option<&CStr>;
+    fn get_name(&self) -> Option<String>;
     fn get_characteristics(&self) -> Option<SectionFlags>;
 }
 
 impl Section for section_header {
-    fn get_name(&self) -> Option<&CStr> {
-        CStr::from_bytes_until_nul(&self.name).ok()
+    fn get_name(&self) -> Option<String> {
+        String::from_utf8(self.name.to_vec()).ok()
     }
 
     fn get_characteristics(&self) -> Option<SectionFlags> {

@@ -1,6 +1,6 @@
 use crate::{coff::coff_file_header, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table, Section}};
 use std::io::{Error, ErrorKind};
-use bytemuck::from_bytes;
+use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
 use std::{fmt};
 
@@ -29,7 +29,8 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
     offset += 4;
 
-    pe.coff = *from_bytes::<coff_file_header>(&binary[offset..offset+20]);
+    pe.coff = *try_from_bytes::<coff_file_header>(&binary[offset..offset+20])
+        .expect("Failed to get COFF!");
 
     offset += 20;
 
@@ -51,11 +52,9 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
     for section in pe.section_table.iter() {
         let name = section.get_name()
-            .expect("Failed to get name")
-            .to_str()
-            .expect("Failed to get string");
+            .expect("Failed to get name");
 
-        match name {
+        match name.trim_end_matches(char::from(0)) {
             ".edata" => {
                 println!(".edata Section");
             }
