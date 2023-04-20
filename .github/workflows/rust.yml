@@ -40,6 +40,6 @@ jobs:
       run: |
         rm -rf tests/pe/32_pe/32_pe_data_dir_architecture.dat \
         rm -rf tests/pe/32_pe/32_pe_data_dir_resources_external_rva.dat \
-        rm -rf 32_pe/32_pe_invalid_offset.dat
+        rm -rf tests/pe/32_pe/32_pe_invalid_offset.dat
     - name: Run tests
       run: cargo test --verbose
