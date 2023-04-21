@@ -1,4 +1,4 @@
-name: Rust
+name: Build & Test
 
 on:
   push:
@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,7 @@ jobs:
       run: cargo build --verbose
 
   test:
-  
+    name: Test
     runs-on: ubuntu-latest
     
     steps:
