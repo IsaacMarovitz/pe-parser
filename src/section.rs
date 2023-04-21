@@ -12,8 +12,10 @@ pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16
     let header_size = std::mem::size_of::<section_header>();
 
     for _ in 0..number_of_sections {
-        if let Some(header) = try_from_bytes::<section_header>(&binary[offset..offset + header_size]).ok() {
-            headers.push(*header);
+        if let Some(slice) = binary.get(offset..offset+header_size) {
+            if let Some(header) = try_from_bytes::<section_header>(slice).ok() {
+                headers.push(*header);
+            }
         }
         offset += header_size;
     }

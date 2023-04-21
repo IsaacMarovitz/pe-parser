@@ -20,10 +20,21 @@ pub struct PortableExecutable {
 
 /// Parse a Portable Executable from a given byte array
 pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Error> {
-    let mut offset = read_u16(binary, IMAGE_DOS_PE_SIGNATURE_OFFSET).into();
+    let mut offset = read_u16(binary, IMAGE_DOS_PE_SIGNATURE_OFFSET)?.into();
 
-    let string = String::from_utf8(binary[offset..offset+4].to_vec())
-        .expect("Failed to get PE Signature");
+    let slice = match binary.get(offset..offset+4) {
+        Some(slice) => slice,
+        None => {
+            return Err(Error::new(ErrorKind::Other, "Offset out of range"))
+        }
+    };
+
+    let string = match String::from_utf8(slice.to_vec()) {
+        Ok(string) => string,
+        Err(_) => {
+            return Err(Error::new(ErrorKind::Other, "Failed to parse string!"));
+        }
+    };
 
     if string != "PE\0\0" {
         return Err(Error::new(ErrorKind::InvalidData, "File is not a valid PE!"));
@@ -38,14 +49,29 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
         section_table: Vec::new()
     };
 
-    pe.coff = *try_from_bytes::<coff_file_header>(&binary[offset..offset+20])
-        .expect("Failed to get COFF!");
+    let slice = match binary.get(offset..offset+20) {
+        Some(slice) => slice,
+        None => {
+            return Err(Error::new(ErrorKind::Other, "Offset out of range"))
+        }
+    };
+
+    pe.coff = match try_from_bytes::<coff_file_header>(slice) {
+        Ok(coff) => *coff,
+        Err(_) => {
+            return Err(Error::new(ErrorKind::Other, "Failed to get COFF header!"));
+        }
+    };
 
     offset += 20;
 
     if pe.coff.size_of_optional_header != 0 {
-        let magic = Magic::from_u16(read_u16(binary, offset))
-            .expect("Failed to get magic!");
+        let magic = match Magic::from_u16(read_u16(binary, offset)?) {
+            Some(magic) => magic,
+            None => {
+                return Err(Error::new(ErrorKind::Other, "Failed to get Magic!"));
+            }
+        };
 
         match magic {
             Magic::PE32 => {
@@ -59,9 +85,13 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
     pe.section_table = parse_section_table(binary, offset, pe.coff.number_of_sections);
 
-    for section in pe.section_table.iter() {
-        let name = section.get_name()
-            .expect("Failed to get name");
+    /*for section in pe.section_table.iter() {
+        let name = match section.get_name() {
+            Some(name) => name,
+            None => {
+                return Err(Error::new(ErrorKind::Other, "Failed to get section name"));
+            }
+        };
 
         match name.trim_end_matches(char::from(0)) {
             ".edata" => {
@@ -72,7 +102,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
             }
             _ => {}
         }
-    }
+    }*/
 
     Ok(pe)
 }
@@ -103,8 +133,12 @@ impl fmt::Display for PortableExecutable {
     }
 }
 
-fn read_u16(binary: &[u8], offset: usize) -> u16 {
-    u16::from_le_bytes(binary[offset..offset+2]
-        .try_into()
-        .expect("Failed to get u16 value!"))
+fn read_u16(binary: &[u8], offset: usize) -> Result<u16, Error> {
+    if let Some(array) = binary.get(offset..offset+2) {
+        if let Some(slice) = array.try_into().ok() {
+            return Ok(u16::from_le_bytes(slice));
+        }
+    }
+
+    Err(Error::new(ErrorKind::Other, "Failed to get value"))
 }
