@@ -26,4 +26,4 @@ jobs:
       run: cargo install cargo-fuzz
     
     - name: Run fuzzer
-      run: cargo fuzz run pe-parser
+      run: cargo fuzz run pe-parser --release --jobs 4
