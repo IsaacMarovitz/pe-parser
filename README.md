@@ -1,5 +1,5 @@
 # [PE Parser](https://docs.rs/crate/pe-parser/latest)
-> A blazing fast 🔥 PE Parser written in Rust
+A blazing fast 🔥 PE Parser written in Rust
 
 ## Motivation
 The main goals of `pe-parser` is to write something suitable for a PE Loader.
