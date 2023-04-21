@@ -1,27 +1,29 @@
-use crate::{coff::coff_file_header, scribe::Scribe, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table, Section}};
+use crate::{coff::coff_file_header, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}};
 use std::io::{Error, ErrorKind};
 use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
-use std::{fmt};
+use std::fmt;
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 
+/// Representation of the sections of a Portable Executable
 pub struct PortableExecutable {
+    /// COFF File Header (Object and Image)
     pub coff: coff_file_header,
+    /// PE32 Optional Header (Image Only)
     pub optional_header_32: Option<optional_header_32>,
+    /// PE32+ Optional Header (Image Only)
     pub optional_header_64: Option<optional_header_64>,
+    /// Table containing a list of section headers
     pub section_table: Vec<section_header>,
 }
 
+/// Parse a Portable Executable from a given byte array
 pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Error> {
-    let mut offset = binary.read_u16(IMAGE_DOS_PE_SIGNATURE_OFFSET) as usize;
-    let string = binary.read_string(offset, 4);
-    let mut pe: PortableExecutable = PortableExecutable { 
-        coff: coff_file_header::default(), 
-        optional_header_32: None, 
-        optional_header_64: None, 
-        section_table: Vec::new()
-    };
+    let mut offset = read_u16(binary, IMAGE_DOS_PE_SIGNATURE_OFFSET).into();
+
+    let string = String::from_utf8(binary[offset..offset+4].to_vec())
+        .expect("Failed to get PE Signature");
 
     if string != "PE\0\0" {
         return Err(Error::new(ErrorKind::InvalidData, "File is not a valid PE!"));
@@ -29,13 +31,20 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
     offset += 4;
 
+    let mut pe: PortableExecutable = PortableExecutable { 
+        coff: coff_file_header::default(), 
+        optional_header_32: None, 
+        optional_header_64: None, 
+        section_table: Vec::new()
+    };
+
     pe.coff = *try_from_bytes::<coff_file_header>(&binary[offset..offset+20])
         .expect("Failed to get COFF!");
 
     offset += 20;
 
     if pe.coff.size_of_optional_header != 0 {
-        let magic = Magic::from_u16(binary.read_u16(offset))
+        let magic = Magic::from_u16(read_u16(binary, offset))
             .expect("Failed to get magic!");
 
         match magic {
@@ -92,4 +101,10 @@ impl fmt::Display for PortableExecutable {
 
         Ok(())
     }
+}
+
+fn read_u16(binary: &[u8], offset: usize) -> u16 {
+    u16::from_le_bytes(binary[offset..offset+2]
+        .try_into()
+        .expect("Failed to get u16 value!"))
 }

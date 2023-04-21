@@ -520,7 +520,7 @@ checksum = "ceedf44fb00f2d1984b0bc98102627ce622e083e49a5bacdb3e514fa4238e267"
 
 [[package]]
 name = "pe-parser"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "bitflags 2.1.0",
  "bytemuck",

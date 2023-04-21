@@ -4,13 +4,18 @@ use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use std::{fmt, str};
 
+/// Magic values that determine if an Optional Header is 
+/// PE32 (32-bit) or PE32+ (64-bit)
 #[derive(FromPrimitive, Debug)]
 #[repr(u16)]
 pub enum Magic {
+    /// Magic value for 32-bit PEs
     PE32 = 0x10b,
+    /// Magic value for 64-bit PEs
     PE64 = 0x20b
 }
 
+/// Struct containing basic information (address and size) of each table. 
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
 pub struct data_directories {
@@ -80,7 +85,9 @@ impl fmt::Display for data_directories {
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
 pub struct data_directory {
+    /// RVA of the table. The RVA is the address of the table relative to the base address of the image when the table is loaded.
     pub virtual_address: u32,
+    /// Size of the table in bytes.
     pub size: u32
 }
 
@@ -145,6 +152,7 @@ pub struct optional_header_32 {
     pub check_sum: u32,
     /// The subsystem that is required to run this image.
     pub subsystem: u16,
+    /// Bitflag characteristics that describe how a DLL should be loaded.
     pub dll_characteristics: u16,
     /// The size of the stack to reserve. Only `size_of_stack_commit` is committed; the rest is made available one page at a time until the reserve size is reached.
     pub size_of_stack_reserve: u32,
@@ -158,6 +166,7 @@ pub struct optional_header_32 {
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32,
+    /// Struct containing basic information (address and size) of each table. 
     pub data_directories: data_directories
 }
 
@@ -261,6 +270,7 @@ pub struct optional_header_64 {
     pub check_sum: u32,
     /// The subsystem that is required to run this image.
     pub subsystem: u16,
+    /// Bitflag characteristics that describe how a DLL should be loaded.
     pub dll_characteristics: u16,
     /// The size of the stack to reserve. Only `size_of_stack_commit` is committed; the rest is made available one page at a time until the reserve size is reached.
     pub size_of_stack_reserve: u64,
@@ -274,6 +284,7 @@ pub struct optional_header_64 {
     pub loader_flags: u32,
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32,
+    /// Struct containing basic information (address and size) of each table. 
     pub data_directories: data_directories
 }
 
@@ -317,7 +328,8 @@ impl fmt::Display for optional_header_64 {
     }
 }
 
-/// The following values defined for the Subsystem field of the optional header determine which Windows subsystem (if any) is required to run the image.
+/// The following values defined for the Subsystem field of the optional header 
+/// determine which Windows subsystem (if any) is required to run the image.
 #[derive(FromPrimitive, Debug)]
 #[repr(u16)]
 pub enum Subsystem {
@@ -352,6 +364,8 @@ pub enum Subsystem {
 }
 
 bitflags! {
+    /// Bitflags that contain various information about
+    /// how a given DLL should be loaded.
     pub struct DLLCharacteristics: u16 {
         /// Reserved, must be zero.
         const IMAGE_DLLCHARACTERISTICS_RESERVED1 = 0x0001;
@@ -408,9 +422,14 @@ impl str::FromStr for DLLCharacteristics {
     }
 }
 
+/// Helper functions for optional header structs
 pub trait Optional: Sized {
+    /// Returns the subsystem as an enum
     fn get_subsystem(&self) -> Option<Subsystem>;
+    /// Returns the DLL Characteristics as bitflags
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
+    /// Parse optional header (either PE32, or PE32+) starting at
+    /// the given offset.
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError>;
 }
 

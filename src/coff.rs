@@ -5,7 +5,7 @@ use bitflags::bitflags;
 use std::{fmt, str};
 use chrono::NaiveDateTime;
 
-// COFF File Header (Object and Image)
+/// COFF File Header (Object and Image)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
 pub struct coff_file_header {
@@ -181,22 +181,19 @@ impl str::FromStr for Characteristics {
     }
 }
 
-pub trait Coff {
-    fn get_machine_type(&self) -> Option<MachineTypes>;
-    fn get_characteristics(&self) -> Option<Characteristics>;
-    fn get_time_date_stamp(&self) -> Option<NaiveDateTime>;
-}
-
-impl Coff for coff_file_header {
-    fn get_machine_type(&self) -> Option<MachineTypes> {
+impl coff_file_header {
+    /// Returns the machine type as an enum
+    pub fn get_machine_type(&self) -> Option<MachineTypes> {
         MachineTypes::from_u16(self.machine)
     }
 
-    fn get_characteristics(&self) -> Option<Characteristics> {
+    /// Returns the Characteristics as bitflags
+    pub fn get_characteristics(&self) -> Option<Characteristics> {
         Characteristics::from_bits(self.characterisitcs)
     }
 
-    fn get_time_date_stamp(&self) -> Option<NaiveDateTime> {
+    /// Returns the Unix epoch timestamp as a `NaiveDateTime`
+    pub fn get_time_date_stamp(&self) -> Option<NaiveDateTime> {
         NaiveDateTime::from_timestamp_opt(self.time_date_stamp.into(), 0)
     }
 }

@@ -1,9 +1,11 @@
 use bytemuck::checked::try_from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
-use std::ffi::CStr;
 use std::{fmt, str};
 
+/// Parse the section table from a byte array at a given offset.
+/// `number_of_sections` should be equal to number of sections
+/// defined in the COFF header.
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<section_header> {
     let mut offset = offset;
     let mut headers: Vec<section_header> = Vec::new();
@@ -19,6 +21,8 @@ pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16
     headers
 }
 
+/// Contains information such as name, size, characteristics
+/// and location of a section in the binary
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
 pub struct section_header {
@@ -89,6 +93,8 @@ impl fmt::Display for section_header {
 }
 
 bitflags! {
+    /// Bitflags that contain various information about
+    /// how a section should be loaded
     pub struct SectionFlags: u32 {
         /// Reserved for future use.
         const IMAGE_SCN_RESERVED0 = 0x00000000;
@@ -219,17 +225,15 @@ impl str::FromStr for SectionFlags {
     }
 }
 
-pub trait Section {
-    fn get_name(&self) -> Option<String>;
-    fn get_characteristics(&self) -> Option<SectionFlags>;
-}
-
-impl Section for section_header {
-    fn get_name(&self) -> Option<String> {
+impl section_header {
+    /// Get the name of a section as a string.
+    /// Note that this string may contain null characters.
+    pub fn get_name(&self) -> Option<String> {
         String::from_utf8(self.name.to_vec()).ok()
     }
 
-    fn get_characteristics(&self) -> Option<SectionFlags> {
+    /// Returns the Section Characteristics as bitflags
+    pub fn get_characteristics(&self) -> Option<SectionFlags> {
         SectionFlags::from_bits(self.characterisitcs)
     }
 }
