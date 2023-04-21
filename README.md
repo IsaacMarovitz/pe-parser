@@ -1,4 +1,8 @@
 # [PE Parser](https://docs.rs/crate/pe-parser/latest)
+
+[![Build & Test](https://github.com/IsaacMarovitz/pe-parser/actions/workflows/rust.yml/badge.svg)](https://github.com/IsaacMarovitz/pe-parser/actions/workflows/rust.yml) 
+[![Fuzz](https://github.com/IsaacMarovitz/pe-parser/actions/workflows/fuzz.yml/badge.svg)](https://github.com/IsaacMarovitz/pe-parser/actions/workflows/fuzz.yml)
+
 A blazing fast 🔥 PE Parser written in Rust
 
 ## Motivation
