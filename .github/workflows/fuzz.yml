@@ -16,6 +16,11 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
+      
+    - name: Switch to nightly compiler
+      run: |
+        rustup install nightly \
+        rustup default nightly
     
     - name: Install fuzz
       run: cargo install cargo-fuzz
