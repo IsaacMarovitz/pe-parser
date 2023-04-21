@@ -25,7 +25,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     let slice = match binary.get(offset..offset+4) {
         Some(slice) => slice,
         None => {
-            return Err(Error::new(ErrorKind::Other, "Offset out of range"))
+            return Err(Error::new(ErrorKind::Other, "Offset out of range!"))
         }
     };
 
@@ -52,7 +52,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     let slice = match binary.get(offset..offset+20) {
         Some(slice) => slice,
         None => {
-            return Err(Error::new(ErrorKind::Other, "Offset out of range"))
+            return Err(Error::new(ErrorKind::Other, "Offset out of range!"))
         }
     };
 
@@ -75,10 +75,10 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
         match magic {
             Magic::PE32 => {
-                pe.optional_header_32 = optional_header_32::parse_optional_header(binary, &mut offset).ok();
+                pe.optional_header_32 = Some(optional_header_32::parse_optional_header(binary, &mut offset)?);
             }
             Magic::PE64 => {
-                pe.optional_header_64 = optional_header_64::parse_optional_header(binary, &mut offset).ok();
+                pe.optional_header_64 = Some(optional_header_64::parse_optional_header(binary, &mut offset)?);
             }
         }
     }

@@ -1,8 +1,9 @@
-use bytemuck::{Pod, Zeroable, checked::{try_from_bytes, CheckedCastError}};
+use bytemuck::{Pod, Zeroable, checked::{try_from_bytes}};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use std::{fmt, str};
+use std::io::{Error, ErrorKind};
 
 /// Magic values that determine if an Optional Header is 
 /// PE32 (32-bit) or PE32+ (64-bit)
@@ -430,7 +431,7 @@ pub trait Optional: Sized {
     fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
     /// Parse optional header (either PE32, or PE32+) starting at
     /// the given offset.
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError>;
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error>;
 }
 
 impl Optional for optional_header_32 {
@@ -442,11 +443,26 @@ impl Optional for optional_header_32 {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError> {
-        let optional_header = try_from_bytes::<optional_header_32>(&binary[*offset..*offset+96+128]);
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
         let size = std::mem::size_of::<Self>();
+        let slice = match binary.get(*offset..*offset+size) {
+            Some(slice) => slice,
+            None => {
+                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+            }
+        };
+
+        let optional_header = try_from_bytes::<optional_header_32>(slice);
         *offset += size;
-        optional_header.copied()
+        
+        match optional_header.copied() {
+            Ok(header) => {
+                return Ok(header);
+            }
+            Err(_) => {
+                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+            }
+        }
     }
 }
 
@@ -459,10 +475,24 @@ impl Optional for optional_header_64 {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
-    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, CheckedCastError> {
-        let optional_header = try_from_bytes::<optional_header_64>(&binary[*offset..*offset+112+128]);
+    fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
         let size = std::mem::size_of::<Self>();
+        let slice = match binary.get(*offset..*offset+size) {
+            Some(slice) => slice,
+            None => {
+                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+            }
+        };
+    
+        let optional_header = try_from_bytes::<optional_header_64>(slice);
         *offset += size;
-        optional_header.copied()
+        match optional_header.copied() {
+            Ok(header) => {
+                return Ok(header);
+            }
+            Err(_) => {
+                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+            }
+        }
     }
 }
