@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Fuzz
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    
+    - name: Install fuzz
+      run: cargo install cargo-fuzz
+    
+    - name: Run fuzzer
       run: cargo fuzz run pe-parser
