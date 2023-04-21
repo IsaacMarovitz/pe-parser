@@ -19,7 +19,7 @@ jobs:
       
     - name: Switch to nightly compiler
       run: |
-        rustup install nightly \
+        rustup install nightly
         rustup default nightly
     
     - name: Install fuzz
