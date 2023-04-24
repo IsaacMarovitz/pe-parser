@@ -1,4 +1,4 @@
-name: ClusterFuzzLite batch fuzzing
+name: Fuzzing
 on:
   workflow_dispatch:
   schedule:
