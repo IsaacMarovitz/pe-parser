@@ -175,7 +175,7 @@ impl fmt::Display for optional_header_32 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
-        let dll_characteristics = self.get_dll_characterisitcs()
+        let dll_characteristics = self.get_dll_characteristics()
             .expect("Failed to get DLL characteristics");
 
         writeln!(f, "Optional Header")?;
@@ -293,7 +293,7 @@ impl fmt::Display for optional_header_64 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
-        let dll_characteristics = self.get_dll_characterisitcs()
+        let dll_characteristics = self.get_dll_characteristics()
             .expect("Failed to get DLL characteristics");
 
         writeln!(f, "Optional Header")?;
@@ -335,7 +335,7 @@ impl fmt::Display for optional_header_64 {
 #[repr(u16)]
 pub enum Subsystem {
     /// An unknown subsystem
-    Unkown = 0,
+    Unknown = 0,
     /// Device drivers and native Windows processes
     Native = 1,
     /// The Windows graphical user interface (GUI) subsystem
@@ -428,7 +428,7 @@ pub trait Optional: Sized {
     /// Returns the subsystem as an enum
     fn get_subsystem(&self) -> Option<Subsystem>;
     /// Returns the DLL Characteristics as bitflags
-    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics>;
+    fn get_dll_characteristics(&self) -> Option<DLLCharacteristics>;
     /// Parse optional header (either PE32, or PE32+) starting at
     /// the given offset.
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error>;
@@ -439,7 +439,7 @@ impl Optional for optional_header_32 {
         Subsystem::from_u16(self.subsystem)
     }
 
-    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
+    fn get_dll_characteristics(&self) -> Option<DLLCharacteristics> {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
@@ -471,7 +471,7 @@ impl Optional for optional_header_64 {
         Subsystem::from_u16(self.subsystem)
     }
 
-    fn get_dll_characterisitcs(&self) -> Option<DLLCharacteristics> {
+    fn get_dll_characteristics(&self) -> Option<DLLCharacteristics> {
         DLLCharacteristics::from_bits(self.dll_characteristics)
     }
 
