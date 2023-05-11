@@ -67,7 +67,7 @@ pub struct section_header {
     /// This value should be zero for an image because COFF debugging information is deprecated.
     pub number_of_linenumbers: u16,
     /// The flags that describe the characteristics of the section.
-    pub characterisitcs: u32
+    pub characteristics: u32
 }
 
 impl fmt::Display for section_header {
@@ -236,6 +236,6 @@ impl section_header {
 
     /// Returns the Section Characteristics as bitflags
     pub fn get_characteristics(&self) -> Option<SectionFlags> {
-        SectionFlags::from_bits(self.characterisitcs)
+        SectionFlags::from_bits(self.characteristics)
     }
 }

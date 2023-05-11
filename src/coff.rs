@@ -24,7 +24,7 @@ pub struct coff_file_header {
     /// The size of the optional header, which is required for executable files but not for object files. This value should be zero for an object file.
     pub size_of_optional_header: u16,
     /// The flags that indicate the attributes of the file.
-    pub characterisitcs: u16
+    pub characteristics: u16
 }
 
 impl fmt::Display for coff_file_header {
@@ -32,7 +32,7 @@ impl fmt::Display for coff_file_header {
         let machine_type = self.get_machine_type()
             .expect("Failed to get machine type");
         let characteristics = self.get_characteristics()
-            .expect("Failed to get characterisitcs");
+            .expect("Failed to get characteristics");
         let time = self.get_time_date_stamp()
             .expect("Failed to get time date stamp");
 
@@ -56,7 +56,7 @@ impl fmt::Display for coff_file_header {
 #[repr(u16)]
 pub enum MachineTypes {
     /// The content of this field is assumed to be applicable to any machine type
-    Unkown = 0x0,
+    Unknown = 0x0,
     /// Alpha AXP, 32-bit address space
     Alpha = 0x184,
     /// Alpha 64/AXP 64, 64-bit address space
@@ -110,7 +110,7 @@ pub enum MachineTypes {
     /// Hitachi SH5
     SH5 = 0x1a8,
     /// Thumb
-    Thunb = 0x1c2,
+    Thumb = 0x1c2,
     /// MIPS little-endian WCE v2
     WCEMIPSV2 = 0x169
 }
@@ -189,7 +189,7 @@ impl coff_file_header {
 
     /// Returns the Characteristics as bitflags
     pub fn get_characteristics(&self) -> Option<Characteristics> {
-        Characteristics::from_bits(self.characterisitcs)
+        Characteristics::from_bits(self.characteristics)
     }
 
     /// Returns the Unix epoch timestamp as a `NaiveDateTime`
