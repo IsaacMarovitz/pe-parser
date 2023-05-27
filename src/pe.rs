@@ -2,7 +2,7 @@ use crate::{coff::coff_file_header, optional::{optional_header_32, optional_head
 use std::io::{Error, ErrorKind};
 use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
-use std::fmt;
+use core::fmt;
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 

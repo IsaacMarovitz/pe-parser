@@ -2,7 +2,7 @@ use bytemuck::{Pod, Zeroable};
 use num_derive::FromPrimitive;   
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
-use std::{fmt, str};
+use core::{fmt, str};
 use chrono::NaiveDateTime;
 
 /// COFF File Header (Object and Image)
