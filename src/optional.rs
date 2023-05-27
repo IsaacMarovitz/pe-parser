@@ -3,8 +3,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use core::{fmt, str};
-use std::io::{Error, ErrorKind};
-use crate::prelude::*;
+use crate::{prelude::*, Error};
 
 /// Magic values that determine if an Optional Header is 
 /// PE32 (32-bit) or PE32+ (64-bit)
@@ -449,7 +448,7 @@ impl Optional for optional_header_32 {
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
-                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+                return Err(Error::OffsetOutOfRange);
             }
         };
 
@@ -461,7 +460,7 @@ impl Optional for optional_header_32 {
                 return Ok(header);
             }
             Err(_) => {
-                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+                return Err(Error::BadOptionalHeader);
             }
         }
     }
@@ -481,7 +480,7 @@ impl Optional for optional_header_64 {
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
-                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+                return Err(Error::OffsetOutOfRange);
             }
         };
     
@@ -492,7 +491,7 @@ impl Optional for optional_header_64 {
                 return Ok(header);
             }
             Err(_) => {
-                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+                return Err(Error::BadOptionalHeader);
             }
         }
     }

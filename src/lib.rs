@@ -24,6 +24,11 @@
 //! ```
 
 #![warn(missing_docs)]
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+use crate::prelude::*;
+use core::fmt;
 
 /// COFF file header definitions and helper functions
 pub mod coff;
@@ -35,3 +40,36 @@ pub mod section;
 /// you will ever need
 pub mod pe;
 mod prelude;
+
+/// Error parsing a PE binary.
+#[derive(Debug)]
+pub enum Error {
+    /// Failed to read data; premature EOF.
+    OffsetOutOfRange,
+    /// Failed to parse a header for an optional.
+    BadOptionalHeader,
+    /// Failed to parse a String.
+    BadString(alloc::string::FromUtf8Error),
+    /// Missing PE header.
+    MissingPeHeader,
+    /// Missing COFF header.
+    MissingCoffHeader,
+    /// Missing magic number from header.
+    MissingMagicNumber,
+}
+
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::OffsetOutOfRange => f.write_str("offset out of range; premature EOF"),
+            Error::BadOptionalHeader => f.write_str("failed to parse header for optional"),
+            Error::BadString(e) => f.write_fmt(format_args!("failed to parse string: {}", e)),
+            Error::MissingPeHeader => f.write_str("missing PE header"),
+            Error::MissingCoffHeader => f.write_str("missing COFF header"),
+            Error::MissingMagicNumber => f.write_str("missing magic number"),
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for Error {}
