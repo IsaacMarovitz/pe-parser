@@ -3,6 +3,7 @@ use std::io::{Error, ErrorKind};
 use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
 use core::fmt;
+use crate::prelude::*;
 
 const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 

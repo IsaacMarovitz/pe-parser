@@ -2,6 +2,8 @@ use bytemuck::checked::try_from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
 use core::{fmt, str};
+use core::writeln;
+use crate::prelude::*;
 
 /// Parse the section table from a byte array at a given offset.
 /// `number_of_sections` should be equal to number of sections
