@@ -1,7 +1,9 @@
 use bytemuck::checked::try_from_bytes;
 use bytemuck::{Pod, Zeroable};
 use bitflags::bitflags;
-use std::{fmt, str};
+use core::{fmt, str};
+use core::writeln;
+use crate::prelude::*;
 
 /// Parse the section table from a byte array at a given offset.
 /// `number_of_sections` should be equal to number of sections
@@ -9,7 +11,7 @@ use std::{fmt, str};
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<section_header> {
     let mut offset = offset;
     let mut headers: Vec<section_header> = Vec::new();
-    let header_size = std::mem::size_of::<section_header>();
+    let header_size = core::mem::size_of::<section_header>();
 
     for _ in 0..number_of_sections {
         if let Some(slice) = binary.get(offset..offset+header_size) {

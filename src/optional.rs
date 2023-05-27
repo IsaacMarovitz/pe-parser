@@ -2,8 +2,8 @@ use bytemuck::{Pod, Zeroable, checked::{try_from_bytes}};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
-use std::{fmt, str};
-use std::io::{Error, ErrorKind};
+use core::{fmt, str};
+use crate::{prelude::*, Error};
 
 /// Magic values that determine if an Optional Header is 
 /// PE32 (32-bit) or PE32+ (64-bit)
@@ -444,11 +444,11 @@ impl Optional for optional_header_32 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = std::mem::size_of::<Self>();
+        let size = core::mem::size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
-                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+                return Err(Error::OffsetOutOfRange);
             }
         };
 
@@ -460,7 +460,7 @@ impl Optional for optional_header_32 {
                 return Ok(header);
             }
             Err(_) => {
-                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+                return Err(Error::BadOptionalHeader);
             }
         }
     }
@@ -476,11 +476,11 @@ impl Optional for optional_header_64 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = std::mem::size_of::<Self>();
+        let size = core::mem::size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
-                return Err(Error::new(ErrorKind::Other, "Offset out of range!"));
+                return Err(Error::OffsetOutOfRange);
             }
         };
     
@@ -491,7 +491,7 @@ impl Optional for optional_header_64 {
                 return Ok(header);
             }
             Err(_) => {
-                return Err(Error::new(ErrorKind::Other, "Failed to parse header!"));
+                return Err(Error::BadOptionalHeader);
             }
         }
     }

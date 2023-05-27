@@ -1,9 +1,9 @@
-use std::io::{Error};
-use std::{env, fs};
+use core::env;
+use std::fs;
 use pe_parser::pe::parse_portable_executable;
 use clap::{Arg, command, ArgAction};
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = command!()
         .arg(Arg::new("file")
             .action(ArgAction::Set)
