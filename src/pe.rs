@@ -1,5 +1,4 @@
-use crate::{coff::coff_file_header, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}};
-use std::io::{Error, ErrorKind};
+use crate::{coff::coff_file_header, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}, Error};
 use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
 use core::fmt;
@@ -26,19 +25,19 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     let slice = match binary.get(offset..offset+4) {
         Some(slice) => slice,
         None => {
-            return Err(Error::new(ErrorKind::Other, "Offset out of range!"))
+            return Err(Error::OffsetOutOfRange);
         }
     };
 
     let string = match String::from_utf8(slice.to_vec()) {
         Ok(string) => string,
-        Err(_) => {
-            return Err(Error::new(ErrorKind::Other, "Failed to parse string!"));
+        Err(e) => {
+            return Err(Error::BadString(e));
         }
     };
 
     if string != "PE\0\0" {
-        return Err(Error::new(ErrorKind::InvalidData, "File is not a valid PE!"));
+        return Err(Error::MissingPeHeader);
     }
 
     offset += 4;
@@ -53,14 +52,14 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     let slice = match binary.get(offset..offset+20) {
         Some(slice) => slice,
         None => {
-            return Err(Error::new(ErrorKind::Other, "Offset out of range!"))
+            return Err(Error::OffsetOutOfRange);
         }
     };
 
     pe.coff = match try_from_bytes::<coff_file_header>(slice) {
         Ok(coff) => *coff,
         Err(_) => {
-            return Err(Error::new(ErrorKind::Other, "Failed to get COFF header!"));
+            return Err(Error::MissingCoffHeader);
         }
     };
 
@@ -70,7 +69,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
         let magic = match Magic::from_u16(read_u16(binary, offset)?) {
             Some(magic) => magic,
             None => {
-                return Err(Error::new(ErrorKind::Other, "Failed to get Magic!"));
+                return Err(Error::MissingMagicNumber);
             }
         };
 
@@ -136,10 +135,13 @@ impl fmt::Display for PortableExecutable {
 
 fn read_u16(binary: &[u8], offset: usize) -> Result<u16, Error> {
     if let Some(array) = binary.get(offset..offset+2) {
-        if let Some(slice) = array.try_into().ok() {
-            return Ok(u16::from_le_bytes(slice));
+        if let Ok(slice) = array.try_into() {
+            Ok(u16::from_le_bytes(slice))
+        } else {
+            unreachable!()
         }
+    } else {
+        Err(Error::OffsetOutOfRange)
     }
 
-    Err(Error::new(ErrorKind::Other, "Failed to get value"))
 }
