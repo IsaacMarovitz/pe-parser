@@ -4,6 +4,7 @@ use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use core::{fmt, str};
 use std::io::{Error, ErrorKind};
+use crate::prelude::*;
 
 /// Magic values that determine if an Optional Header is 
 /// PE32 (32-bit) or PE32+ (64-bit)

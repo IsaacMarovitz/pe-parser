@@ -4,6 +4,7 @@ use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use core::{fmt, str};
 use chrono::NaiveDateTime;
+use crate::prelude::*;
 
 /// COFF File Header (Object and Image)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
