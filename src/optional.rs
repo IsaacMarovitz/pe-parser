@@ -2,7 +2,7 @@ use bytemuck::{Pod, Zeroable, checked::{try_from_bytes}};
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
-use std::{fmt, str};
+use core::{fmt, str};
 use std::io::{Error, ErrorKind};
 
 /// Magic values that determine if an Optional Header is 
@@ -444,7 +444,7 @@ impl Optional for optional_header_32 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = std::mem::size_of::<Self>();
+        let size = core::mem::size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
@@ -476,7 +476,7 @@ impl Optional for optional_header_64 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = std::mem::size_of::<Self>();
+        let size = core::mem::size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {

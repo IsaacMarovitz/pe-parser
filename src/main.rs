@@ -1,5 +1,6 @@
-use std::io::{Error};
-use std::{env, fs};
+use std::io::Error;
+use core::env;
+use std::fs;
 use pe_parser::pe::parse_portable_executable;
 use clap::{Arg, command, ArgAction};
 
