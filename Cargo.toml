@@ -21,7 +21,7 @@ bytemuck = {version = "1.13.1", features = ["derive"]}
 num-traits = { version = "0.2", default-features = false }
 num-derive = "0.4"
 bitflags = { version = "2.4.0", default-features = false }
-chrono = { version = "0.4.26", default-features = false }
+chrono = { version = "0.4.28", default-features = false }
 clap = { version = "4.4.0", features = ["cargo"], optional = true }
 
 [dev-dependencies]
