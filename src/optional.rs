@@ -19,43 +19,43 @@ pub enum Magic {
 /// Struct containing basic information (address and size) of each table. 
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct data_directories {
+pub struct DataDirectories {
     /// The export table (.edata) address and size. (Image Only)
-    pub export_table: data_directory,
+    pub export_table: DataDirectory,
     /// The import table (.idata) address and size.
-    pub import_table: data_directory,
+    pub import_table: DataDirectory,
     /// The resource table (.rsrc) address and size.
-    pub resource_table: data_directory,
+    pub resource_table: DataDirectory,
     /// The exception table (.pdata) address and size.
-    pub exception_table: data_directory,
+    pub exception_table: DataDirectory,
     /// The attribute certificate table address and size. (Image Only)
-    pub certificate_table: data_directory,
+    pub certificate_table: DataDirectory,
     /// The base relocation table (.reloc) address and size. (Image Only)
-    pub base_relocation_table: data_directory,
+    pub base_relocation_table: DataDirectory,
     /// The debug data (.debug) starting address and size.
-    pub debug: data_directory,
+    pub debug: DataDirectory,
     /// Reserved, must be 0.
-    pub architecture: data_directory,
+    pub architecture: DataDirectory,
     /// The RVA of the value to be stored in the global pointer register.
     /// The size member of this structure must be set to zero.
-    pub global_ptr: data_directory,
+    pub global_ptr: DataDirectory,
     /// The thread local storage (TLS) table (.tls) address and size.
-    pub tls_table: data_directory,
+    pub tls_table: DataDirectory,
     /// The load configuration table address and size. (Image Only)
-    pub load_config_table: data_directory,
+    pub load_config_table: DataDirectory,
     /// The bound import table address and size.
-    pub bound_import: data_directory,
+    pub bound_import: DataDirectory,
     /// The import address table address and size.
-    pub import_address_table: data_directory,
+    pub import_address_table: DataDirectory,
     /// The delay import descriptor address and size. (Image Only)
-    pub delay_import_descriptor: data_directory,
+    pub delay_import_descriptor: DataDirectory,
     /// The CLR runtime header (.cormeta) address and size. (Object Only
-    pub clr_runtime_header: data_directory,
+    pub clr_runtime_header: DataDirectory,
     /// Reserved, must be zero.
-    pub reserved: data_directory
+    pub reserved: DataDirectory
 }
 
-impl fmt::Display for data_directories {
+impl fmt::Display for DataDirectories {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Data Directories")?;
         writeln!(f, "----------------")?;
@@ -85,7 +85,7 @@ impl fmt::Display for data_directories {
 /// A data directory is an 8-byte field that has the following declaration:
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct data_directory {
+pub struct DataDirectory {
     /// RVA of the table. The RVA is the address of the table relative to the base address of the image when the table is loaded.
     pub virtual_address: u32,
     /// Size of the table in bytes.
@@ -95,7 +95,7 @@ pub struct data_directory {
 /// PE32 Optional Header (Image Only)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct optional_header_32 {
+pub struct OptionalHeader32 {
     /// The unsigned integer that identifies the state of the image file.
     /// The most common number is 0x10B, which identifies it as a normal executable file.
     /// 0x107 identifies it as a ROM image, and 0x20B identifies it as a PE32+ executable.
@@ -168,10 +168,10 @@ pub struct optional_header_32 {
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32,
     /// Struct containing basic information (address and size) of each table. 
-    pub data_directories: data_directories
+    pub data_directories: DataDirectories
 }
 
-impl fmt::Display for optional_header_32 {
+impl fmt::Display for OptionalHeader32 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
@@ -215,7 +215,7 @@ impl fmt::Display for optional_header_32 {
 /// PE32+ Optional Header (Image Only)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct optional_header_64 {
+pub struct OptionalHeader64 {
     /// The unsigned integer that identifies the state of the image file.
     /// The most common number is 0x10B, which identifies it as a normal executable file.
     /// 0x107 identifies it as a ROM image, and 0x20B identifies it as a PE32+ executable.
@@ -286,10 +286,10 @@ pub struct optional_header_64 {
     /// The number of data-directory entries in the remainder of the optional header. Each describes a location and size.
     pub number_of_rva_and_sizes: u32,
     /// Struct containing basic information (address and size) of each table. 
-    pub data_directories: data_directories
+    pub data_directories: DataDirectories
 }
 
-impl fmt::Display for optional_header_64 {
+impl fmt::Display for OptionalHeader64 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let subsystem = self.get_subsystem()
             .expect("Failed to get subsystem");
@@ -434,7 +434,7 @@ pub trait Optional: Sized {
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error>;
 }
 
-impl Optional for optional_header_32 {
+impl Optional for OptionalHeader32 {
     fn get_subsystem(&self) -> Option<Subsystem> {
         Subsystem::from_u16(self.subsystem)
     }
@@ -452,7 +452,7 @@ impl Optional for optional_header_32 {
             }
         };
 
-        let optional_header = try_from_bytes::<optional_header_32>(slice);
+        let optional_header = try_from_bytes::<OptionalHeader32>(slice);
         *offset += size;
         
         match optional_header.copied() {
@@ -466,7 +466,7 @@ impl Optional for optional_header_32 {
     }
 }
 
-impl Optional for optional_header_64 {
+impl Optional for OptionalHeader64 {
     fn get_subsystem(&self) -> Option<Subsystem> {
         Subsystem::from_u16(self.subsystem)
     }
@@ -484,7 +484,7 @@ impl Optional for optional_header_64 {
             }
         };
     
-        let optional_header = try_from_bytes::<optional_header_64>(slice);
+        let optional_header = try_from_bytes::<OptionalHeader64>(slice);
         *offset += size;
         match optional_header.copied() {
             Ok(header) => {

@@ -9,7 +9,7 @@ use crate::prelude::*;
 /// COFF File Header (Object and Image)
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct coff_file_header {
+pub struct CoffFileHeader {
     /// The number that identifies the type of target machine.
     pub machine: u16,
     /// The number of sections. This indicates the size of the section table, which immediately follows the headers.
@@ -28,7 +28,7 @@ pub struct coff_file_header {
     pub characteristics: u16
 }
 
-impl fmt::Display for coff_file_header {
+impl fmt::Display for CoffFileHeader {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let machine_type = self.get_machine_type()
             .expect("Failed to get machine type");
@@ -182,7 +182,7 @@ impl str::FromStr for Characteristics {
     }
 }
 
-impl coff_file_header {
+impl CoffFileHeader {
     /// Returns the machine type as an enum
     pub fn get_machine_type(&self) -> Option<MachineTypes> {
         MachineTypes::from_u16(self.machine)

@@ -8,14 +8,14 @@ use crate::prelude::*;
 /// Parse the section table from a byte array at a given offset.
 /// `number_of_sections` should be equal to number of sections
 /// defined in the COFF header.
-pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<section_header> {
+pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<SectionHeader> {
     let mut offset = offset;
-    let mut headers: Vec<section_header> = Vec::new();
-    let header_size = core::mem::size_of::<section_header>();
+    let mut headers: Vec<SectionHeader> = Vec::new();
+    let header_size = core::mem::size_of::<SectionHeader>();
 
     for _ in 0..number_of_sections {
         if let Some(slice) = binary.get(offset..offset+header_size) {
-            if let Some(header) = try_from_bytes::<section_header>(slice).ok() {
+            if let Some(header) = try_from_bytes::<SectionHeader>(slice).ok() {
                 headers.push(*header);
             }
         }
@@ -29,7 +29,7 @@ pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16
 /// and location of a section in the binary
 #[derive(Copy, Clone, Pod, Zeroable, Default)]
 #[repr(C)]
-pub struct section_header {
+pub struct SectionHeader {
     /// An 8-byte, null-padded UTF-8 encoded string. 
     /// If the string is exactly 8 characters long, there is no terminating null. 
     /// For longer names, this field contains a slash (/) that is followed by an ASCII representation of a decimal number that is an offset into the string table. 
@@ -61,18 +61,18 @@ pub struct section_header {
     /// The file pointer to the beginning of line-number entries for the section.
     /// This is set to zero if there are no COFF line numbers.
     /// This value should be zero for an image because COFF debugging information is deprecated.
-    pub pointer_to_linenumbers: u32,
+    pub pointer_to_line_numbers: u32,
     /// The number of relocation entries for the section.
     /// This is set to zero for executable images.
     pub number_of_relocations: u16,
     /// The number of line-number entries for the section.
     /// This value should be zero for an image because COFF debugging information is deprecated.
-    pub number_of_linenumbers: u16,
+    pub number_of_line_numbers: u16,
     /// The flags that describe the characteristics of the section.
     pub characteristics: u32
 }
 
-impl fmt::Display for section_header {
+impl fmt::Display for SectionHeader {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = self.get_name()
             .expect("Failed to get name");
@@ -87,9 +87,9 @@ impl fmt::Display for section_header {
         writeln!(f, "Size of Raw Data:        {}", self.size_of_raw_data)?;
         writeln!(f, "Pointer to Raw Data:     {}", self.pointer_to_raw_data)?;
         writeln!(f, "Pointer to Relocations:  {}", self.pointer_to_relocations)?;
-        writeln!(f, "Pointer to Line-numbers: {}", self.pointer_to_linenumbers)?;
+        writeln!(f, "Pointer to Line-numbers: {}", self.pointer_to_line_numbers)?;
         writeln!(f, "Number of Relocations:   {}", self.number_of_relocations)?;
-        writeln!(f, "Number of Line-numbers:  {}", self.number_of_linenumbers)?;
+        writeln!(f, "Number of Line-numbers:  {}", self.number_of_line_numbers)?;
         writeln!(f, "Characteristics:         {}", characteristics)?;
 
         Ok(())
@@ -229,7 +229,7 @@ impl str::FromStr for SectionFlags {
     }
 }
 
-impl section_header {
+impl SectionHeader {
     /// Get the name of a section as a string.
     /// Note that this string may contain null characters.
     pub fn get_name(&self) -> Option<String> {

@@ -1,4 +1,4 @@
-use crate::{coff::coff_file_header, optional::{optional_header_32, optional_header_64, Magic, Optional}, section::{section_header, parse_section_table}, Error};
+use crate::{coff::CoffFileHeader, optional::{OptionalHeader32, OptionalHeader64, Magic, Optional}, section::{SectionHeader, parse_section_table}, Error};
 use bytemuck::checked::try_from_bytes;
 use num_traits::FromPrimitive;
 use core::fmt;
@@ -9,13 +9,13 @@ const IMAGE_DOS_PE_SIGNATURE_OFFSET: usize = 0x3c;
 /// Representation of the sections of a Portable Executable
 pub struct PortableExecutable {
     /// COFF File Header (Object and Image)
-    pub coff: coff_file_header,
+    pub coff: CoffFileHeader,
     /// PE32 Optional Header (Image Only)
-    pub optional_header_32: Option<optional_header_32>,
+    pub optional_header_32: Option<OptionalHeader32>,
     /// PE32+ Optional Header (Image Only)
-    pub optional_header_64: Option<optional_header_64>,
+    pub optional_header_64: Option<OptionalHeader64>,
     /// Table containing a list of section headers
-    pub section_table: Vec<section_header>,
+    pub section_table: Vec<SectionHeader>,
 }
 
 /// Parse a Portable Executable from a given byte array
@@ -43,7 +43,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
     offset += 4;
 
     let mut pe: PortableExecutable = PortableExecutable { 
-        coff: coff_file_header::default(), 
+        coff: CoffFileHeader::default(),
         optional_header_32: None, 
         optional_header_64: None, 
         section_table: Vec::new()
@@ -56,7 +56,7 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
         }
     };
 
-    pe.coff = match try_from_bytes::<coff_file_header>(slice) {
+    pe.coff = match try_from_bytes::<CoffFileHeader>(slice) {
         Ok(coff) => *coff,
         Err(_) => {
             return Err(Error::MissingCoffHeader);
@@ -75,10 +75,10 @@ pub fn parse_portable_executable(binary: &[u8]) -> Result<PortableExecutable, Er
 
         match magic {
             Magic::PE32 => {
-                pe.optional_header_32 = Some(optional_header_32::parse_optional_header(binary, &mut offset)?);
+                pe.optional_header_32 = Some(OptionalHeader32::parse_optional_header(binary, &mut offset)?);
             }
             Magic::PE64 => {
-                pe.optional_header_64 = Some(optional_header_64::parse_optional_header(binary, &mut offset)?);
+                pe.optional_header_64 = Some(OptionalHeader64::parse_optional_header(binary, &mut offset)?);
             }
         }
     }

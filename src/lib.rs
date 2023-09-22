@@ -1,6 +1,6 @@
 //! # pe-parser: Blazing-fast, safe, Portable Executable parsing.
 //! 
-//! `pe-parser` provides a safe Rust-y way to parse Portable Exectuables quickly.
+//! `pe-parser` provides a safe Rust-y way to parse Portable Executables quickly.
 //! - Everything parsed to native documented structs 
 //! - Secondary parsing functions raw data into native Rust types
 //! - Every section can be printed with ease
@@ -58,7 +58,7 @@ pub enum Error {
     MissingMagicNumber,
 }
 
-impl core::fmt::Display for Error {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::OffsetOutOfRange => f.write_str("Offset out of range!"),
