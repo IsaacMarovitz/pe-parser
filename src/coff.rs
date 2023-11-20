@@ -53,7 +53,7 @@ impl fmt::Display for CoffFileHeader {
 
 /// The Machine field has one of the following values, which specify the CPU type. 
 /// An image file can be run only on the specified machine or on a system that emulates the specified machine.
-#[derive(FromPrimitive, Debug)]
+#[derive(FromPrimitive, Debug, PartialEq)]
 #[repr(u16)]
 pub enum MachineTypes {
     /// The content of this field is assumed to be applicable to any machine type

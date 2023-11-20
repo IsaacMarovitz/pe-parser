@@ -1,6 +1,6 @@
 [package]
 name = "pe-parser"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 license = "MIT"
 authors = ["Isaac Marovitz <isaacmarovitz@gmail.com>"]
@@ -22,7 +22,7 @@ num-traits = { version = "0.2.17", default-features = false }
 num-derive = "0.4.1"
 bitflags = { version = "2.4.1", default-features = false }
 chrono = { version = "0.4.31", default-features = false }
-clap = { version = "4.4.7", features = ["cargo"], optional = true }
+clap = { version = "4.4.8", features = ["cargo"], optional = true }
 
 [dev-dependencies]
 datatest-stable = "0.2.3"
