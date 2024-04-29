@@ -25,7 +25,7 @@ chrono = { version = "0.4.38", default-features = false }
 clap = { version = "4.5.4", features = ["cargo"], optional = true }
 
 [dev-dependencies]
-datatest-stable = "0.2.6"
+datatest-stable = "0.2.9"
 
 [[test]]
 name = "pe-parser"
