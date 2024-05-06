@@ -18,14 +18,14 @@ std = ["clap"]
 
 [dependencies]
 bytemuck = { version = "1.15.0", features = ["derive"] }
-num-traits = { version = "0.2.18", default-features = false }
+num-traits = { version = "0.2.19", default-features = false }
 num-derive = "0.4.2"
 bitflags = { version = "2.5.0", default-features = false }
 chrono = { version = "0.4.38", default-features = false }
 clap = { version = "4.5.4", features = ["cargo"], optional = true }
 
 [dev-dependencies]
-datatest-stable = "0.2.6"
+datatest-stable = "0.2.9"
 
 [[test]]
 name = "pe-parser"
