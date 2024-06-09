@@ -32,6 +32,8 @@ use core::fmt;
 
 /// COFF file header definitions and helper functions
 pub mod coff;
+/// COFF relocation definitions and helper functions
+pub mod relocation;
 /// Optional header definitions and helper functions
 pub mod optional;
 /// Section header definitions and helper functions

@@ -3,11 +3,11 @@ use datatest_stable::Result;
 use pe_parser::pe::parse_portable_executable;
 use std::fs;
 
-fn gaunlet(path: &Path) -> Result<()> {
+fn gauntlet(path: &Path) -> Result<()> {
     let binary = fs::read(path)?;
     let pe = parse_portable_executable(binary.as_slice())?;
 
-    // Binary passed inital parsing, now check if reserved fields are 0
+    // Binary passed initial parsing, now check if reserved fields are 0
 
     if let Some(optional) = pe.optional_header_32 {
         assert_eq!(optional.data_directories.architecture.size, 0);
@@ -32,4 +32,4 @@ fn gaunlet(path: &Path) -> Result<()> {
     Ok(())
 }
 
-datatest_stable::harness!(gaunlet, "tests/pe", r"\.((dat)|(exe)|(dll))$");
+datatest_stable::harness!(gauntlet, "tests/pe", r"\.((dat)|(exe)|(dll))$");

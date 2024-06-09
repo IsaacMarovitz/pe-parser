@@ -3,7 +3,7 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use core::{fmt, str};
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use crate::prelude::*;
 
 /// COFF File Header (Object and Image)
@@ -193,8 +193,8 @@ impl CoffFileHeader {
         Characteristics::from_bits(self.characteristics)
     }
 
-    /// Returns the Unix epoch timestamp as a `NaiveDateTime`
-    pub fn get_time_date_stamp(&self) -> Option<NaiveDateTime> {
-        NaiveDateTime::from_timestamp_opt(self.time_date_stamp.into(), 0)
+    /// Returns the Unix epoch timestamp as a `DateTime<Utc>`
+    pub fn get_time_date_stamp(&self) -> Option<DateTime<Utc>> {
+        DateTime::from_timestamp(self.time_date_stamp.into(), 0)
     }
 }
