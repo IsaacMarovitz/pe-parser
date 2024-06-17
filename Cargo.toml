@@ -22,7 +22,7 @@ num-traits = { version = "0.2.19", default-features = false }
 num-derive = "0.4.2"
 bitflags = { version = "2.5.0", default-features = false }
 chrono = { version = "0.4.38", default-features = false }
-clap = { version = "4.5.6", features = ["cargo"], optional = true }
+clap = { version = "4.5.7", features = ["cargo"], optional = true }
 
 [dev-dependencies]
 datatest-stable = "0.2.9"
