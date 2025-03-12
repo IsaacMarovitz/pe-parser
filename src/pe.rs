@@ -143,5 +143,4 @@ fn read_u16(binary: &[u8], offset: usize) -> Result<u16, Error> {
     } else {
         Err(Error::OffsetOutOfRange)
     }
-
 }

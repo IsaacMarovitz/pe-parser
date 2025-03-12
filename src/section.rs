@@ -11,11 +11,11 @@ use crate::prelude::*;
 pub fn parse_section_table(binary: &[u8], offset: usize, number_of_sections: u16) -> Vec<SectionHeader> {
     let mut offset = offset;
     let mut headers: Vec<SectionHeader> = Vec::new();
-    let header_size = core::mem::size_of::<SectionHeader>();
+    let header_size = size_of::<SectionHeader>();
 
     for _ in 0..number_of_sections {
         if let Some(slice) = binary.get(offset..offset+header_size) {
-            if let Some(header) = try_from_bytes::<SectionHeader>(slice).ok() {
+            if let Ok(header) = try_from_bytes::<SectionHeader>(slice) {
                 headers.push(*header);
             }
         }

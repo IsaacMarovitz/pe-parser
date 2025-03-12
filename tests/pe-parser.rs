@@ -32,4 +32,6 @@ fn gauntlet(path: &Path) -> Result<()> {
     Ok(())
 }
 
-datatest_stable::harness!(gauntlet, "tests/pe", r"\.((dat)|(exe)|(dll))$");
+datatest_stable::harness! {
+    { test = gauntlet, root = "tests/pe", pattern = r"\.((dat)|(exe)|(dll))$" },
+}

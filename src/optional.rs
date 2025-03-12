@@ -444,7 +444,7 @@ impl Optional for OptionalHeader32 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = core::mem::size_of::<Self>();
+        let size = size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
@@ -454,13 +454,13 @@ impl Optional for OptionalHeader32 {
 
         let optional_header = try_from_bytes::<OptionalHeader32>(slice);
         *offset += size;
-        
+
         match optional_header.copied() {
             Ok(header) => {
-                return Ok(header);
+                Ok(header)
             }
             Err(_) => {
-                return Err(Error::BadOptionalHeader);
+                Err(Error::BadOptionalHeader)
             }
         }
     }
@@ -476,7 +476,7 @@ impl Optional for OptionalHeader64 {
     }
 
     fn parse_optional_header(binary: &[u8], offset: &mut usize) -> Result<Self, Error> {
-        let size = core::mem::size_of::<Self>();
+        let size = size_of::<Self>();
         let slice = match binary.get(*offset..*offset+size) {
             Some(slice) => slice,
             None => {
@@ -488,10 +488,10 @@ impl Optional for OptionalHeader64 {
         *offset += size;
         match optional_header.copied() {
             Ok(header) => {
-                return Ok(header);
+                Ok(header)
             }
             Err(_) => {
-                return Err(Error::BadOptionalHeader);
+                Err(Error::BadOptionalHeader)
             }
         }
     }
