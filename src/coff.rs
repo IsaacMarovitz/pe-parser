@@ -3,7 +3,6 @@ use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use bitflags::bitflags;
 use core::{fmt, str};
-use chrono::{DateTime, Utc};
 use crate::prelude::*;
 
 /// COFF File Header (Object and Image)
@@ -34,8 +33,11 @@ impl fmt::Display for CoffFileHeader {
             .expect("Failed to get machine type");
         let characteristics = self.get_characteristics()
             .expect("Failed to get characteristics");
+        #[cfg(feature = "chrono")]
         let time = self.get_time_date_stamp()
             .expect("Failed to get time date stamp");
+        #[cfg(not(feature = "chrono"))]
+        let time = self.time_date_stamp;
 
         writeln!(f, "COFF Header")?;
         writeln!(f, "-----------")?;
@@ -194,7 +196,8 @@ impl CoffFileHeader {
     }
 
     /// Returns the Unix epoch timestamp as a `DateTime<Utc>`
-    pub fn get_time_date_stamp(&self) -> Option<DateTime<Utc>> {
-        DateTime::from_timestamp(self.time_date_stamp.into(), 0)
+    #[cfg(feature = "chrono")]
+    pub fn get_time_date_stamp(&self) -> Option<chrono::DateTime<chrono::Utc>> {
+        chrono::DateTime::from_timestamp(self.time_date_stamp.into(), 0)
     }
 }
