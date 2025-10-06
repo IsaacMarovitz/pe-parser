@@ -18,15 +18,15 @@ std = ["clap"]
 chrono = ["dep:chrono"]
 
 [dependencies]
-bytemuck = { version = "1.22.0", features = ["derive"] }
+bytemuck = { version = "1.24.0", features = ["derive"] }
 num-traits = { version = "0.2.19", default-features = false }
 num-derive = "0.4.2"
-bitflags = { version = "2.9.0", default-features = false }
-chrono = { version = "0.4.40", default-features = false, optional = true }
-clap = { version = "4.5.32", features = ["cargo"], optional = true }
+bitflags = { version = "2.9.4", default-features = false }
+chrono = { version = "0.4.42", default-features = false, optional = true }
+clap = { version = "4.5.48", features = ["cargo"], optional = true }
 
 [dev-dependencies]
-datatest-stable = "0.3.2"
+datatest-stable = "0.3.3"
 
 [[test]]
 name = "pe-parser"
